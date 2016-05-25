@@ -24,6 +24,7 @@ void decode(uint32_t instruction);
 //void pipeline(void);
 bool checkConditionField(uint32_t instruction);
 void multiply(uint32_t instruction);
+void branch(uint32_t instruction);
 
 int main(int argc, char **argv) {
 
@@ -132,4 +133,20 @@ void multiply(uint32_t instruction) {
 			}
 		}
 	}
+}
+
+
+void branch(uint32_t instruction) {
+
+	if(!checkConditionField(instruction)) {
+		return ;
+	}
+	int signBit = 0;
+	int offset = instruction << 8;
+	if (offset < 0) {
+		signBit = -1 << 26;
+	}
+	offset >>= 6;
+	offset += signBit;
+	ARM.registers[PC] += offset - 8;
 }
