@@ -24,6 +24,7 @@ void decode(uint32_t instruction);
 //void pipeline(void);
 bool checkConditionField(uint32_t instruction);
 void multiply(uint32_t instruction);
+void singleDataTransfer(uint32_t instruction);
 void branch(uint32_t instruction);
 
 int main(int argc, char **argv) {
@@ -133,6 +134,52 @@ void multiply(uint32_t instruction) {
 			}
 		}
 	}
+}
+
+void singleDataTransfer(uint32_t instruction) {
+        
+	if(checkConditionField(instruction)) {
+		return;
+	}
+
+        uint32_t maskRn = 0xf << 16;
+        uint32_t maskRd = 0xf << 12;
+        uint8_t flagI = (instruction >> 25) % 2;
+        uint8_t flagP = (instruction >> 24) % 2;
+        uint8_t flagU = (instruction >> 23) % 2;
+        uint8_t flagL = (instruction >> 20) % 2;
+        uint8_t Rn = (instruction & maskRn) >> 16;
+        uint8_t Rd = (instruction & maskRd) >> 12;
+        uint16_t Offset = instruction & 0xfff;
+
+        if(flagI == 1) {
+	  //codefromdataprocessing	
+	} else {
+          //codefromdataprocessing  
+	}
+
+	uint8_t sign = -1;
+        if(flagU == 1) {
+	  sign = 1;		
+	} 
+
+	uint32_t address = ARM.registers[Rn];
+
+	if(flagP == 1) {
+	  address += sign * Offset;
+	  if(flagL == 1) {
+	    ARM.registers[Rd] = ARM.memory[address];	
+	  } else {
+            ARM.memory[address] = ARM.registers[Rd]; 
+	  } 
+	} else {
+	    if(flagL == 1) {
+              ARM.registers[Rd] = ARM.memory[address];  
+	    } else {
+	      ARM.memory[address] = ARM.registers[Rd];	
+            }
+           ARM.registers[Rn] += sign * Offset;
+	}	
 }
 
 
