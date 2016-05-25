@@ -26,6 +26,7 @@ bool checkConditionField(uint32_t instruction);
 void multiply(uint32_t instruction);
 void singleDataTransfer(uint32_t instruction);
 void branch(uint32_t instruction);
+void printStatus(void);
 
 int main(int argc, char **argv) {
 
@@ -45,6 +46,8 @@ int main(int argc, char **argv) {
 	/*for(int i = 0; i < size; i+=4) {
 		printf("%d", checkConditionField(fetchInstruction(i)));
 	}*/
+
+	printStatus();
 
 	return EXIT_SUCCESS;
 }
@@ -138,7 +141,7 @@ void multiply(uint32_t instruction) {
 
 void singleDataTransfer(uint32_t instruction) {
         
-	if(checkConditionField(instruction)) {
+	if(!checkConditionField(instruction)) {
 		return;
 	}
 
@@ -196,4 +199,33 @@ void branch(uint32_t instruction) {
 	offset >>= 6;
 	offset += signBit;
 	ARM.registers[PC] += offset - 8;
+}
+
+void printStatus(void) {
+
+	printf("Registers:\n");
+
+	for(int i = 0; i < NUMBER_OF_REGISTERS; i++) {
+		if(i < 10) {
+			printf("$%d  :", i);
+		} else if(i < 13) {
+			printf("$%d :", i);
+		} else if(i == 15) {
+			printf("PC  :");
+		} else if(i == 16) {
+			printf("CPSR:");
+		} else {
+			continue;
+		}
+		printf("\t%u (0x%08x)\n", ARM.registers[i], ARM.registers[i]);
+	}
+
+	printf("Non-zero memory:\n");
+
+	int i = 0;
+	while(fetchInstruction(i) != 0) {
+		printf("0x%08x: 0x%08x\n", i, fetchInstruction(i));
+		i += 4;
+	}
+
 }
