@@ -145,44 +145,50 @@ void singleDataTransfer(uint32_t instruction) {
 		return;
 	}
 
-        uint32_t maskRn = 0xf << 16;
-        uint32_t maskRd = 0xf << 12;
-        uint32_t instr = instruction;
-        uint8_t flagL = (instr >> 20) % 2;
-        uint8_t flagU = (instr >> 3) % 2;
-        uint8_t flagP = (instr >> 1) % 2;
-        uint8_t flagI = (instr >> 1) % 2;
-        uint8_t Rn = (instruction & maskRn) >> 16;
-        uint8_t Rd = (instruction & maskRd) >> 12;
-        uint16_t Offset = instruction & 0xfff;
+	uint32_t maskRn = 0xf << 16;
+	uint32_t maskRd = 0xf << 12;
+	uint32_t maskRm = 0xf;
+	uint32_t instr = instruction;
+	uint8_t flagL = (instr >> 20) % 2;
+	uint8_t flagU = (instr >> 3) % 2;
+	uint8_t flagP = (instr >> 1) % 2;
+	uint8_t flagI = (instr >> 1) % 2;
+	uint8_t rn = (instruction & maskRn) >> 16;
+	uint8_t rd = (instruction & maskRd) >> 12;
+	uint16_t offset = instruction & 0xfff;
 
-        if(flagI == 1) {
-	  //codefromdataprocessing	
-	} else {
-          //codefromdataprocessing  
+	if(flagI) {
+		if(!flagP && ((offset & maskRm) == rn)) {
+			perror("Operation not allowed!");
+			exit(EXIT_FAILURE);
+		}
+    	//codefromdataprocessing
 	}
 
 	uint8_t sign = -1;
-        if(flagU == 1) {
-	  sign = 1;		
+	if(flagU) {
+		sign = 1;
 	} 
 
-	uint32_t address = ARM.registers[Rn];
+	uint32_t address = ARM.registers[rn];
+	if(rn == PC) {
+		address -= 8;
+	}
 
-	if(flagP == 1) {
-	  address += sign * Offset;
-	  if(flagL == 1) {
-	    ARM.registers[Rd] = ARM.memory[address];	
-	  } else {
-            ARM.memory[address] = ARM.registers[Rd]; 
-	  } 
+	if(flagP) {
+		address += sign * offset;
+		if(flagL) {
+			ARM.registers[rd] = ARM.memory[address];
+		} else {
+			ARM.memory[address] = ARM.registers[rd];
+		}
 	} else {
-	    if(flagL == 1) {
-              ARM.registers[Rd] = ARM.memory[address];  
-	    } else {
-	      ARM.memory[address] = ARM.registers[Rd];	
-            }
-           ARM.registers[Rn] += sign * Offset;
+		if(flagL) {
+			ARM.registers[rd] = ARM.memory[address];
+		} else {
+			ARM.memory[address] = ARM.registers[rd];
+		}
+		ARM.registers[rn] += sign * offset;
 	}	
 }
 
