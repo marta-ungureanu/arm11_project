@@ -25,8 +25,10 @@ struct State {
 struct State ARM;
 
 uint32_t fetchInstruction(int address);
-void decode(uint32_t instruction);
-//void pipeline(void);
+//void decode(uint32_t instruction);
+int decode(uint32_t instruction);
+void execute(int code, uint32_t instruction);
+void pipeline(void);
 bool checkConditionField(uint32_t instruction);
 void multiply(uint32_t instruction);
 void singleDataTransfer(uint32_t instruction);
@@ -70,15 +72,53 @@ int main(int argc, char **argv) {
 
 	fread(ARM.memory, size, 1, fin);
 
-	for(int i = 0; i < size; i+=4) {
+/*	for(int i = 0; i < size; i+=4) {
 		decode(fetchInstruction(i));
 		printStatus();
 		//printf("%d", checkConditionField(fetchInstruction(i)));
-	}
+	}*/
 
+	pipeline();
 	printStatus();
 
 	return EXIT_SUCCESS;
+}
+
+void pipeline(void) {
+
+	uint32_t fetchedInstr;
+	uint32_t instrToDecode;
+	int decodedInstr;
+	uint32_t instrToExecute;
+	int initializedVariables = 0;
+
+	while(1){
+		if(decodedInstr == -1) {
+			ARM.registers[PC] += 4;
+			continue;
+		}
+		if(initializedVariables > 1) {
+			instrToExecute = instrToDecode;
+			instrToDecode = fetchedInstr;
+			fetchedInstr = fetchInstruction(ARM.registers[PC]);
+			execute(decodedInstr, instrToExecute);
+			decodedInstr = decode(instrToDecode);
+		} else if(initializedVariables > 0) {
+			instrToDecode = fetchedInstr;
+			fetchedInstr = fetchInstruction(ARM.registers[PC]);
+			decodedInstr = decode(instrToDecode);
+			initializedVariables ++;
+		} else {
+			fetchedInstr = fetchInstruction(ARM.registers[PC]);
+			initializedVariables ++;
+		}
+		if(instrToExecute == 0) {
+			return;
+		}
+		printf("fetchedInstruction = %u, instrToDecode = %u, decodedInstr = %d,instrToExecute = %u, PC = %d\n", fetchedInstr,
+				instrToDecode, decodedInstr, instrToExecute, ARM.registers[PC]);
+		ARM.registers[PC] += 4;
+	}
 }
 
 uint32_t fetchInstruction(int address) {
@@ -97,9 +137,46 @@ uint32_t printInstruction(int address) {
 	return (byte4 | byte3 | byte2 | byte1);
 }
 
+int decode(uint32_t instruction) {
+	if(instruction == 0){
+			return 0;
+	}
+	if((MULTIPLY_MASK & instruction) == 0) {
+		return 1;
+	}
+	if ((DATA_PROCESSING_MASK & instruction) == 0) {
+		return 2;
+	}
+	if ((SINGLE_DATA_TRANSFER_MASK & instruction) == 0) {
+		return 3;
+	}
+	if ((BRANCH_MASK & instruction) == 0) {
+		return 4;
+	}
+	return -1;
+}
+
+void execute(int code, uint32_t instruction) {
+	switch(code){
+	case 0:
+		return;
+	case 1:
+		multiply(instruction);
+		return;
+	case 2:
+		dataProcessing(instruction);
+		return;
+	case 3:
+		singleDataTransfer(instruction);
+		return;
+	case 4:
+		branch(instruction);
+		return;
+	}
+}
 
 
-void decode(uint32_t instruction) {
+/*void decode(uint32_t instruction) {
 
 	if(instruction == 0){
 		printf("STOP\n");
@@ -121,7 +198,7 @@ void decode(uint32_t instruction) {
 		//dealwiththat();
 	}
 
-}
+}*/
 
 bool checkConditionField(uint32_t instruction) {
 
@@ -130,7 +207,7 @@ bool checkConditionField(uint32_t instruction) {
 	uint32_t flagV = (cprs >> 28) % 2;
 	uint32_t flagZ = (cprs >> 30) % 2;
 	uint32_t flagN = cprs >> 31;
-	printf("V = %u \n Z = %u \n N = %u \n", flagV, flagZ, flagN);
+	//printf("V = %u \n Z = %u \n N = %u \n", flagV, flagZ, flagN);
 
 	return  (condition == 0 && flagZ == 1) ||
 			(condition == 1 && flagZ == 0) ||
