@@ -21,8 +21,9 @@ struct State ARM;
 
 uint32_t fetchInstruction(int address);
 void decode(uint32_t instruction);
-void pipeline(void);
+//void pipeline(void);
 bool checkConditionField(uint32_t instruction);
+void multiply(uint32_t instruction);
 
 int main(int argc, char **argv) {
 
@@ -39,9 +40,9 @@ int main(int argc, char **argv) {
 
 	fread(ARM.memory, size, 1, fin);
 
-	for(int i = 0; i < size; i+=4) {
+	/*for(int i = 0; i < size; i+=4) {
 		printf("%d", checkConditionField(fetchInstruction(i)));
-	}
+	}*/
 
 	return EXIT_SUCCESS;
 }
@@ -61,16 +62,16 @@ void decode(uint32_t instruction) {
 		//stop();
 	} else if((MULTIPLY_MASK & instruction) == 0) {
 		printf("MULTIPLY\n");
-		//dataProcessing();
+		multiply(instruction);
 	} else if ((DATA_PROCESSING_MASK & instruction) == 0) {
 		printf("DATA\n");
-		//multiply();
+		//dataProcessing(instruction);
 	} else if ((SINGLE_DATA_TRANSFER_MASK & instruction) == 0) {
 		printf("SINGLE\n");
-		//singleDataTransfer();
+		//singleDataTransfer(instruction);
 	} else if ((BRANCH_MASK & instruction) == 0) {
 		printf("BRANCH\n");
-		//branch();
+		//branch(instruction);
 	} else {
 		printf("???\n");
 		//dealwiththat();
@@ -81,9 +82,10 @@ void decode(uint32_t instruction) {
 bool checkConditionField(uint32_t instruction) {
 
 	uint8_t condition = instruction >> 28;
-	uint8_t flagN = ARM.registers[CPSR] >> 30;
-	uint8_t flagZ = (ARM.registers[CPSR] >> 29) % 2;
-	uint8_t flagV = (ARM.registers[CPSR] >> 27) % 2;
+	uint32_t cprs = ARM.registers[CPSR];
+	uint8_t flagV = (cprs >> 28) % 2;
+	uint8_t flagZ = (cprs >> 2) % 2;
+	uint8_t flagN = cprs >> 1;
 
 	return  (condition == 0 && flagZ == 1) ||
 			(condition == 1 && flagZ == 0) ||
@@ -92,4 +94,42 @@ bool checkConditionField(uint32_t instruction) {
 			(condition == 12 && flagZ == 0 && flagN == flagV) ||
 			(condition == 13 && (flagZ == 1 || flagN != flagV)) ||
 			(condition == 14);
+}
+
+void multiply(uint32_t instruction) {
+
+	if(!checkConditionField(instruction)) {
+		return;
+	}
+
+	uint8_t accumulator = (instruction & (1 << 21)) >> 21;
+	uint8_t setCondition = (instruction & (1 << 20)) >> 20;
+	uint32_t rd = (instruction & (15 << 16)) >> 16;
+	uint32_t rn = (instruction & (15 << 12)) >> 12;
+	uint32_t rs = (instruction & (15 << 8)) >> 8;
+	uint32_t rm = instruction & 15;
+
+	if(accumulator) {
+		ARM.registers[rd] = ARM.registers[rm] * ARM.registers[rs] + ARM.registers[rn];
+	} else {
+		ARM.registers[rd] = ARM.registers[rm] * ARM.registers[rs];
+	}
+
+	if(setCondition) {
+		uint32_t Nflag = ARM.registers[rd] & (1 << 31);
+
+		if((ARM.registers[CPSR] & (1 << 31)) != Nflag) {
+			printf("DIFERIT\n");
+			if(Nflag) {
+				ARM.registers[CPSR] += 1 << 31;
+			} else {
+				ARM.registers[CPSR] -= 1 << 31;
+			}
+		}
+		if(ARM.registers[rd] == 0) {
+			if((ARM.registers[CPSR] & (1 << 30)) == 0) {
+				ARM.registers[CPSR] += 1 << 30;
+			}
+		}
+	}
 }
