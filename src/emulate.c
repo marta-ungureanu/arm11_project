@@ -147,10 +147,11 @@ void singleDataTransfer(uint32_t instruction) {
 
         uint32_t maskRn = 0xf << 16;
         uint32_t maskRd = 0xf << 12;
-        uint8_t flagI = (instruction >> 25) % 2;
-        uint8_t flagP = (instruction >> 24) % 2;
-        uint8_t flagU = (instruction >> 23) % 2;
-        uint8_t flagL = (instruction >> 20) % 2;
+        uint32_t instr = instruction;
+        uint8_t flagL = (instr >> 20) % 2;
+        uint8_t flagU = (instr >> 3) % 2;
+        uint8_t flagP = (instr >> 1) % 2;
+        uint8_t flagI = (instr >> 1) % 2;
         uint8_t Rn = (instruction & maskRn) >> 16;
         uint8_t Rd = (instruction & maskRd) >> 12;
         uint16_t Offset = instruction & 0xfff;
