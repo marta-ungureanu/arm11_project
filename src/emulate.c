@@ -600,6 +600,7 @@ int executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Va
 			setCBit(1);
 		}
 		*/
+		
 		ARM.registers[destinationRegister] = (ARM.registers[firstRegister] + (~(operand2Value) +1));
 		if (checkAdditionOverflow(ARM.registers[firstRegister], (~(operand2Value)+1))) {
 			setCBit(0);
@@ -616,7 +617,7 @@ int executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Va
 			setCBit(1);
 		}
 		*/
-		ARM.registers[destinationRegister] = (operand2Value + ((~ARM.registers[firstRegister]) +1));
+		ARM.registers[destinationRegister] = (operand2Value - ARM.registers[firstRegister]);
 		/*if (ARM.registers[destinationRegister] <= operand2Value) {
 			setCBit(0);
 		}
@@ -649,42 +650,14 @@ int executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Va
 		}
 		*/
 		return ARM.registers[destinationRegister];
-	case 10:
-		/*if (ARM.registers[firstRegister] < operand2Value) {
+	case 10: 
+		if(operand2Value > ARM.registers[firstRegister]){
 			setCBit(0);
 		}
-		else {
+		else{
 			setCBit(1);
 		}
-		*/
-		if (operand2Value == 0) {
-			setCBit(1);
-			return ARM.registers[firstRegister];
-		}
-		
 		result = ARM.registers[firstRegister] - operand2Value;
-		
-		/*
-		if (result <= ARM.registers[firstRegister]) {
-			setCBit(0);
-		}
-		else {
-			setCBit(1);
-		}
-		*/
-		if (ARM.registers[firstRegister] != operand2Value) {
-			//printf("%d\n", checkAdditionOverflow(ARM.registers[firstRegister], ((~operand2Value) + 1)));
-			if (checkAdditionOverflow(ARM.registers[firstRegister], ((~operand2Value) + 1)) || ARM.registers[firstRegister] < operand2Value) {
-				setCBit(0);
-			}
-			else {
-				setCBit(1);
-			}
-		}
-		else {
-			setCBit(1);
-		}
-		//printf("result is %d \n ", result);
 		return  result;
 	}
 	printf("unreachable code in executeArithmetic.");
