@@ -94,7 +94,7 @@ void pipeline(void) {
 	uint32_t instrToExecute;
 	int initializedVariables = 0;
 
-	printf("Pc = %d\n", ARM.registers[PC]);
+	//printf("Pc = %d\n", ARM.registers[PC]);
 
 	while(1){
 		if(decodedInstr == -1) {
@@ -123,7 +123,7 @@ void pipeline(void) {
 			return;
 		}
 		ARM.registers[PC] += 4;
-		printStatus();
+		//printStatus();
 	}
 }
 
@@ -247,7 +247,7 @@ void multiply(uint32_t instruction) {
 		uint32_t Nflag = ARM.registers[rd] & (1 << 31);
 
 		if((ARM.registers[CPSR] & (1 << 31)) != Nflag) {
-			printf("DIFERIT\n");
+			//printf("DIFERIT\n");
 			if(Nflag) {
 				ARM.registers[CPSR] += 1 << 31;
 			} else {
@@ -297,7 +297,7 @@ void singleDataTransfer(uint32_t instruction) {
 	
 	if(flagP) {
 		address += sign * offset;
-		printf("HEREEEEE %u \n", address);
+		//printf("HEREEEEE %u \n", address);
 		load_store(rd, address, flagL);
 	} else {
 		load_store(rd, address, flagL);
@@ -340,7 +340,7 @@ void branch(uint32_t instruction) {
 		return ;
 	}
 	//ARM.registers[PC] = 20;
-	printf("%u \n", instruction);
+	//printf("%u \n", instruction);
 	int signBit = 0;
 	int offset = instruction << 8;
 	if (offset < 0) {
@@ -356,6 +356,7 @@ void printStatus(void) {
 
 	printf("Registers:\n");
 
+
 	for(int i = 0; i < NUMBER_OF_REGISTERS; i++) {
 		if(i < 10) {
 			printf("$%d  :", i);
@@ -368,7 +369,16 @@ void printStatus(void) {
 		} else {
 			continue;
 		}
-		printf("\t%d (0x%08x)\n", ARM.registers[i], ARM.registers[i]);
+		if(i == 16) {
+			if(ARM.registers[i] < 0) {
+				printf("%12d (0x%08x)\n", ARM.registers[i], ARM.registers[i]);
+			} else {
+				printf("%11d (0x%08x)\n", ARM.registers[i], ARM.registers[i]);
+			}
+		} else {
+			printf("%11d (0x%08x)\n", ARM.registers[i], ARM.registers[i]);
+		}
+		
 	}
 
 	printf("Non-zero memory:\n");
@@ -406,12 +416,12 @@ void dataProcessing(uint32_t instruction) {
 			result = executeArithmetic(opCode, firstRegister, operand2, destinationRegister);
 		}
 		if (sBitSet(instruction)) {
-			printf("the result in bitset is: %d", result);
+			//printf("the result in bitset is: %d", result);
 			if (result == 0) {
 				setZBit();
 			}
 			setNBit(result >> 31);
-			printf("the n bit should be: %d\n", result >> 31);
+			//printf("the n bit should be: %d\n", result >> 31);
 		}
 	}
 }
@@ -562,7 +572,7 @@ uint32_t executeLogical(uint8_t opCode, uint8_t firstRegister, uint32_t operand2
 		ARM.registers[destinationRegister] = (ARM.registers[firstRegister] ^ operand2Value);
 		return ARM.registers[destinationRegister];
 	case 8:
-		printf("register is: %d and operand2 is: %d \n", ARM.registers[firstRegister], operand2Value);
+		//printf("register is: %d and operand2 is: %d \n", ARM.registers[firstRegister], operand2Value);
 		return ARM.registers[firstRegister] & operand2Value;
 	case 9:
 		return ARM.registers[firstRegister] ^ operand2Value;
@@ -663,7 +673,7 @@ int executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Va
 		}
 		*/
 		if (ARM.registers[firstRegister] != operand2Value) {
-			printf("%d\n", checkAdditionOverflow(ARM.registers[firstRegister], ((~operand2Value) + 1)));
+			//printf("%d\n", checkAdditionOverflow(ARM.registers[firstRegister], ((~operand2Value) + 1)));
 			if (checkAdditionOverflow(ARM.registers[firstRegister], ((~operand2Value) + 1)) || ARM.registers[firstRegister] < operand2Value) {
 				setCBit(0);
 			}
@@ -674,7 +684,7 @@ int executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Va
 		else {
 			setCBit(1);
 		}
-		printf("result is %d \n ", result);
+		//printf("result is %d \n ", result);
 		return  result;
 	}
 	printf("unreachable code in executeArithmetic.");
