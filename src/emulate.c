@@ -91,7 +91,7 @@ void pipeline(void) {
 	uint32_t fetchedInstr;
 	uint32_t instrToDecode;
 	int decodedInstr;
-	uint32_t instrToExecute;
+	uint32_t instrToExecute = -1;
 	int initializedVariables = 0;
 
 	//printf("Pc = %d\n", ARM.registers[PC]);
@@ -321,9 +321,9 @@ void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
 		//ARM.memory[address] = ARM.registers[rd];
 		uint32_t registerContent = ARM.registers[rd];
 		uint32_t byte4 = registerContent & EIGHT_BIT_MASK;
-		uint32_t byte3 = registerContent & (EIGHT_BIT_MASK << 8);
-		uint32_t byte2 = registerContent & (EIGHT_BIT_MASK << 16);
-		uint32_t byte1 = registerContent & (EIGHT_BIT_MASK << 24);
+		uint32_t byte3 = (registerContent & (EIGHT_BIT_MASK << 8)) >> 8;
+		uint32_t byte2 = (registerContent & (EIGHT_BIT_MASK << 16)) >> 16;
+		uint32_t byte1 = (registerContent & (EIGHT_BIT_MASK << 24)) >> 24;
 
 		ARM.memory[address] = byte4;
 		ARM.memory[address + 1] = byte3;
