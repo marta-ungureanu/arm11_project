@@ -13,6 +13,7 @@
 #define BRANCH_MASK 5 << 24
 
 #define FOUR_BIT_MASK ((1 << 4) -1)
+#define SIX_BIT_MASK ((1 << 6) -1)
 #define EIGHT_BIT_MASK ((1 << 8) -1)
 #define TWO_BIT_MASK 3
 #define DP_OPERAND2_MASK ((1 << 12) -1)
@@ -141,7 +142,7 @@ int decode(uint32_t instruction) {
 	if(instruction == 0){
 			return 0;
 	}
-	if((MULTIPLY_MASK & instruction) == 0) {
+	if (((instruction >> 4) & FOUR_BIT_MASK) == 9 && (((instruction >> 22) & SIX_BIT_MASK) == 0)) {
 		return 1;
 	}
 	if ((DATA_PROCESSING_MASK & instruction) == 0) {
@@ -432,7 +433,12 @@ bool sBitSet(uint32_t instruction) {
 }
 
 void setCBit(uint8_t value) {
-	ARM.registers[CPSR] ^= (-value ^ ARM.registers[CPSR]) & (1 << 29);
+	if (value) {
+		ARM.registers[CPSR] |= (1 << 29);
+	}
+	else {
+		ARM.registers[CPSR] &= ~(1 << 29);
+	}
 }
 
 void setZBit() {
@@ -569,11 +575,11 @@ uint32_t executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t opera
 		ARM.registers[destinationRegister] = (ARM.registers[firstRegister] - operand2Value);
 		return ARM.registers[destinationRegister];
 	case 3:
-		if (operand2Value < ARM.registers[firstRegister]) {
-			setCBit(1);
+		if (operand2Value <= ARM.registers[firstRegister]) {
+			setCBit(0);
 		}
 		else {
-			setCBit(0);
+			setCBit(1);
 		}
 		ARM.registers[destinationRegister] = (operand2Value - ARM.registers[firstRegister]);
 		return ARM.registers[destinationRegister];
