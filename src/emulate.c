@@ -17,6 +17,7 @@
 #define EIGHT_BIT_MASK ((1 << 8) -1)
 #define TWO_BIT_MASK 3
 #define DP_OPERAND2_MASK ((1 << 12) -1)
+#define TWENTYFOUR_BIT_MASK 0x00FFFFFF
 
 struct State {
 	uint8_t memory[SIZE_OF_MEMORY];
@@ -26,7 +27,6 @@ struct State {
 struct State ARM;
 
 uint32_t fetchInstruction(int address);
-//void decode(uint32_t instruction);
 int decode(uint32_t instruction);
 void execute(int code, uint32_t instruction);
 void pipeline(void);
@@ -55,7 +55,7 @@ uint32_t executeLogical(uint8_t opCode, uint8_t firstRegister, uint32_t operand2
 int executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Value, uint8_t destinationRegister);
 bool checkAdditionOverflow(uint32_t a, uint32_t b);
 
-void setZBit();
+void setZBit(uint8_t value);
 void setCBit(uint8_t value);
 void setNBit(uint8_t value);
 
@@ -74,14 +74,7 @@ int main(int argc, char **argv) {
 
 	fread(ARM.memory, size, 1, fin);
 
-/*	for(int i = 0; i < size; i+=4) {
-		decode(fetchInstruction(i));
-		printStatus();
-		//printf("%d", checkConditionField(fetchInstruction(i)));
-	}*/
-
 	pipeline();
-	printStatus();
 
 	return EXIT_SUCCESS;
 }
@@ -90,15 +83,12 @@ void pipeline(void) {
 
 	uint32_t fetchedInstr;
 	uint32_t instrToDecode;
-	int decodedInstr;
+	int decodedInstr = 0;
 	uint32_t instrToExecute = -1;
 	int initializedVariables = 0;
 
-	//printf("Pc = %d\n", ARM.registers[PC]);
-
-	while(1){
+	while(1){		
 		if(decodedInstr == -1) {
-			ARM.registers[PC] += 4;
 			continue;
 		}
 		if(initializedVariables > 1) {
@@ -119,11 +109,8 @@ void pipeline(void) {
 			fetchedInstr = fetchInstruction(ARM.registers[PC]);
 			initializedVariables ++;
 		}
-		if(instrToExecute == 0) {
-			return;
-		}
 		ARM.registers[PC] += 4;
-		//printStatus();
+
 	}
 }
 
@@ -164,7 +151,9 @@ int decode(uint32_t instruction) {
 
 void execute(int code, uint32_t instruction) {
 	switch(code){
-	case 0:
+	case 0:		
+		printStatus();
+		exit(EXIT_SUCCESS);
 		return;
 	case 1:
 		multiply(instruction);
@@ -182,29 +171,6 @@ void execute(int code, uint32_t instruction) {
 }
 
 
-/*void decode(uint32_t instruction) {
-
-	if(instruction == 0){
-		printf("STOP\n");
-		//stop();
-	} else if((MULTIPLY_MASK & instruction) == 0) {
-		printf("MULTIPLY\n");
-		multiply(instruction);
-	} else if ((DATA_PROCESSING_MASK & instruction) == 0) {
-		printf("DATA\n");
-		dataProcessing(instruction);
-	} else if ((SINGLE_DATA_TRANSFER_MASK & instruction) == 0) {
-		printf("SINGLE\n");
-		singleDataTransfer(instruction);
-	} else if ((BRANCH_MASK & instruction) == 0) {
-		printf("BRANCH\n");
-		branch(instruction);
-	} else {
-		printf("???\n");
-		//dealwiththat();
-	}
-
-}*/
 
 bool checkConditionField(uint32_t instruction) {
 
@@ -213,7 +179,6 @@ bool checkConditionField(uint32_t instruction) {
 	uint32_t flagV = (cprs >> 28) % 2;
 	uint32_t flagZ = (cprs >> 30) % 2;
 	uint32_t flagN = cprs >> 31;
-	//printf("V = %u \n Z = %u \n N = %u \n", flagV, flagZ, flagN);
 
 	return  (condition == 0 && flagZ == 1) ||
 			(condition == 1 && flagZ == 0) ||
@@ -247,7 +212,6 @@ void multiply(uint32_t instruction) {
 		uint32_t Nflag = ARM.registers[rd] & (1 << 31);
 
 		if((ARM.registers[CPSR] & (1 << 31)) != Nflag) {
-			//printf("DIFERIT\n");
 			if(Nflag) {
 				ARM.registers[CPSR] += 1 << 31;
 			} else {
@@ -267,7 +231,6 @@ void singleDataTransfer(uint32_t instruction) {
 	if(!checkConditionField(instruction)) {
 		return;
 	}
-	//printf("Instruction is %u \n", instruction);
 
 	uint32_t maskRn = 0xf << 16;
 	uint32_t maskRd = 0xf << 12;
@@ -279,14 +242,13 @@ void singleDataTransfer(uint32_t instruction) {
 	uint32_t rn = (instruction & maskRn) >> 16;
 	uint32_t rd = (instruction & maskRd) >> 12;
 	uint16_t offset = instruction & 0xfff;
-	//printf("%d \n", flagI);
 	if(flagI) {
 		
 		if(!flagP && ((offset & maskRm) == rn)) {
 			perror("Operation not allowed!");
 			exit(EXIT_FAILURE);
 		}
-		offset = DPShift(offset, ((offset >> 1) & 3), instruction);//codefromdataprocessing
+		offset = DPShift(offset, ((offset >> 1) & 3), instruction);
 	}
 	int sign = -1;
 	if(flagU) {
@@ -297,7 +259,6 @@ void singleDataTransfer(uint32_t instruction) {
 	
 	if(flagP) {
 		address += sign * offset;
-		//printf("HEREEEEE %u \n", address);
 		load_store(rd, address, flagL);
 	} else {
 		load_store(rd, address, flagL);
@@ -308,9 +269,7 @@ void singleDataTransfer(uint32_t instruction) {
 
 void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
 	if (flagL) {
-		//printf("address value is: %u \n", address);
 		if (address < (SIZE_OF_MEMORY - 3)) {
-			//printf("HEREEEEE %u \n", fetchInstruction(address));
 			ARM.registers[rd] = fetchInstruction(address);
 		}
 		else {
@@ -318,7 +277,6 @@ void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
 		}
 	}
 	else {
-		//ARM.memory[address] = ARM.registers[rd];
 		uint32_t registerContent = ARM.registers[rd];
 		uint32_t byte4 = registerContent & EIGHT_BIT_MASK;
 		uint32_t byte3 = (registerContent & (EIGHT_BIT_MASK << 8)) >> 8;
@@ -334,19 +292,15 @@ void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
 
 
 void branch(uint32_t instruction) {
-
 	if(!checkConditionField(instruction)) {
-		//printf("is the flaw here? :D");
 		return ;
 	}
-	//ARM.registers[PC] = 20;
-	//printf("%u \n", instruction);
 	int signBit = 0;
-	int offset = instruction << 8;
-	if (offset < 0) {
-		signBit = -1 << 26;
+	int32_t offset = instruction & TWENTYFOUR_BIT_MASK;
+	if ((offset<<8) < 0) {
+		signBit = (-1) << 26;
 	}
-	offset >>= 6;
+	offset *= 4;	
 	offset += signBit;
 	ARM.registers[PC] += offset;
 	pipeline();
@@ -416,12 +370,13 @@ void dataProcessing(uint32_t instruction) {
 			result = executeArithmetic(opCode, firstRegister, operand2, destinationRegister);
 		}
 		if (sBitSet(instruction)) {
-			//printf("the result in bitset is: %d", result);
 			if (result == 0) {
-				setZBit();
+				setZBit(1);
+			}
+			else{
+				setZBit(0);
 			}
 			setNBit(result >> 31);
-			//printf("the n bit should be: %d\n", result >> 31);
 		}
 	}
 }
@@ -459,8 +414,13 @@ void setCBit(uint8_t value) {
 	}
 }
 
-void setZBit() {
-	ARM.registers[CPSR] |= 1 << 30;
+void setZBit(uint8_t value) {
+	if (value) {
+		ARM.registers[CPSR] |= (1 << 30);
+	}
+	else {
+		ARM.registers[CPSR] &= ~(1 << 30);
+	}
 }
 
 void setNBit(uint8_t value) {
@@ -470,7 +430,6 @@ void setNBit(uint8_t value) {
 	else {
 		ARM.registers[CPSR] &= ~(1 << 31);
 	}
-	//ARM.registers[CPSR] ^= (-value ^ ARM.registers[CPSR]) & (1 << 31);
 }
 
 uint32_t getDPOpCode(uint32_t instruction) {
@@ -572,7 +531,6 @@ uint32_t executeLogical(uint8_t opCode, uint8_t firstRegister, uint32_t operand2
 		ARM.registers[destinationRegister] = (ARM.registers[firstRegister] ^ operand2Value);
 		return ARM.registers[destinationRegister];
 	case 8:
-		//printf("register is: %d and operand2 is: %d \n", ARM.registers[firstRegister], operand2Value);
 		return ARM.registers[firstRegister] & operand2Value;
 	case 9:
 		return ARM.registers[firstRegister] ^ operand2Value;
