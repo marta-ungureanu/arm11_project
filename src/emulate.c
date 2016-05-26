@@ -39,8 +39,8 @@ uint32_t printInstruction(int address);
 
 void load_store(uint32_t rd, uint32_t address, uint32_t flagL);
 
-uint32_t DPRotateRight(uint32_t operand2, uint8_t value, uint8_t opCode);
-uint32_t DPShift(uint32_t operand2, uint8_t opCode);
+uint32_t DPRotateRight(uint32_t operand2, uint8_t value, uint8_t opCode, uint32_t instruction);
+uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction);
 void dataProcessing(uint32_t instruction);
 bool isImmediateOperandSet(uint32_t instruction);
 bool sBitSet(uint32_t instruction);
@@ -284,7 +284,7 @@ void singleDataTransfer(uint32_t instruction) {
 			perror("Operation not allowed!");
 			exit(EXIT_FAILURE);
 		}
-		offset = DPShift(offset, ((offset >> 1) & 3));//codefromdataprocessing
+		offset = DPShift(offset, ((offset >> 1) & 3), instruction);//codefromdataprocessing
 	}
 	int sign = -1;
 	if(flagU) {
@@ -392,10 +392,10 @@ void dataProcessing(uint32_t instruction) {
 		uint32_t operand2 = getDPOperand2(instruction);
 		uint32_t result;
 		if (isImmediateOperandSet(instruction)) {
-			operand2 = DPRotateRight((operand2 & EIGHT_BIT_MASK), operand2 >> 8, opCode);
+			operand2 = DPRotateRight((operand2 & EIGHT_BIT_MASK), operand2 >> 8, opCode, instruction);
 		}
 		else {
-			operand2 = DPShift(operand2, opCode);
+			operand2 = DPShift(operand2, opCode, instruction);
 		}
 		if (isLogical(opCode)) {
 			result = executeLogical(opCode, firstRegister, operand2, destinationRegister);
@@ -469,7 +469,7 @@ uint32_t getDPOperand2(uint32_t instruction) {
 	return (instruction & DP_OPERAND2_MASK);
 }
 
-uint32_t DPShift(uint32_t operand2, uint8_t opCode) {
+uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 	uint8_t shiftType = (operand2 >> 5) & TWO_BIT_MASK;
 	uint8_t shiftValue = operand2 >> 8;
 	uint32_t value = ARM.registers[(operand2 & FOUR_BIT_MASK)];
@@ -510,13 +510,13 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode) {
 			}
 			return value;
 		case 3:
-			return DPRotateRight(value, shiftValue, opCode);
+			return DPRotateRight(value, shiftValue, opCode, instruction);
 		}
 	}
 	return value;
 }
 
-uint32_t DPRotateRight(uint32_t value, uint8_t shiftValue, uint8_t opCode) {
+uint32_t DPRotateRight(uint32_t value, uint8_t shiftValue, uint8_t opCode, uint32_t instruction) {
 	while (shiftValue > 0) {
 		if (value % 2 == 1) {
 			value = value >> 1;
@@ -535,7 +535,9 @@ uint32_t DPRotateRight(uint32_t value, uint8_t shiftValue, uint8_t opCode) {
 		shiftValue--;
 	}
 	if (isLogical(opCode)) {
-		setCBit(value >> 31);
+		if (sBitSet(instruction)) {
+			setCBit(value >> 31);
+		}
 	}
 	return value;
 }
