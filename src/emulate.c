@@ -93,6 +93,8 @@ void pipeline(void) {
 	uint32_t instrToExecute;
 	int initializedVariables = 0;
 
+	printf("Pc = %d\n", ARM.registers[PC]);
+
 	while(1){
 		if(decodedInstr == -1) {
 			ARM.registers[PC] += 4;
@@ -103,6 +105,9 @@ void pipeline(void) {
 			instrToDecode = fetchedInstr;
 			fetchedInstr = fetchInstruction(ARM.registers[PC]);
 			execute(decodedInstr, instrToExecute);
+			if(decodedInstr == 4 && checkConditionField(instrToExecute)) {
+				return;
+			}
 			decodedInstr = decode(instrToDecode);
 		} else if(initializedVariables > 0) {
 			instrToDecode = fetchedInstr;
@@ -116,8 +121,6 @@ void pipeline(void) {
 		if(instrToExecute == 0) {
 			return;
 		}
-		printf("fetchedInstruction = %u, instrToDecode = %u, decodedInstr = %d,instrToExecute = %u, PC = %d\n", fetchedInstr,
-				instrToDecode, decodedInstr, instrToExecute, ARM.registers[PC]);
 		ARM.registers[PC] += 4;
 	}
 }
@@ -262,7 +265,7 @@ void singleDataTransfer(uint32_t instruction) {
 	if(!checkConditionField(instruction)) {
 		return;
 	}
-	printf("Instruction is %u \n", instruction);
+	//printf("Instruction is %u \n", instruction);
 
 	uint32_t maskRn = 0xf << 16;
 	uint32_t maskRd = 0xf << 12;
@@ -274,7 +277,7 @@ void singleDataTransfer(uint32_t instruction) {
 	uint32_t rn = (instruction & maskRn) >> 16;
 	uint32_t rd = (instruction & maskRd) >> 12;
 	uint16_t offset = instruction & 0xfff;
-	printf("%d \n", flagI);
+	//printf("%d \n", flagI);
 	if(flagI) {
 		
 		if(!flagP && ((offset & maskRm) == rn)) {
@@ -303,9 +306,9 @@ void singleDataTransfer(uint32_t instruction) {
 
 void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
 	if (flagL) {
-		printf("address value is: %u \n", address);
+		//printf("address value is: %u \n", address);
 		if (address < (SIZE_OF_MEMORY - 3)) {
-			printf("HEREEEEE %u \n", fetchInstruction(address));
+			//printf("HEREEEEE %u \n", fetchInstruction(address));
 			ARM.registers[rd] = fetchInstruction(address);
 		}
 		else {
@@ -331,10 +334,10 @@ void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
 void branch(uint32_t instruction) {
 
 	if(!checkConditionField(instruction)) {
-		printf("is the flaw here? :D");
+		//printf("is the flaw here? :D");
 		return ;
 	}
-	ARM.registers[PC] = 20;
+	//ARM.registers[PC] = 20;
 	printf("%u \n", instruction);
 	int signBit = 0;
 	int offset = instruction << 8;
@@ -344,6 +347,7 @@ void branch(uint32_t instruction) {
 	offset >>= 6;
 	offset += signBit;
 	ARM.registers[PC] += offset;
+	pipeline();
 }
 
 void printStatus(void) {
