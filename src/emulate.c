@@ -34,7 +34,7 @@ bool checkConditionField(uint32_t instruction);
 void multiply(uint32_t instruction);
 void singleDataTransfer(uint32_t instruction);
 void branch(uint32_t instruction);
-void printStatus(void);
+void printStatus(int size);
 uint32_t printInstruction(int address);
 
 void load_store(uint32_t rd, uint32_t address, uint32_t flagL);
@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
 	}*/
 
 	pipeline();
-	printStatus();
+	printStatus(size);
 
 	return EXIT_SUCCESS;
 }
@@ -352,7 +352,7 @@ void branch(uint32_t instruction) {
 	pipeline();
 }
 
-void printStatus(void) {
+void printStatus(int size) {
 
 	printf("Registers:\n");
 
@@ -383,10 +383,10 @@ void printStatus(void) {
 
 	printf("Non-zero memory:\n");
 
-	int i = 0;
-	while(fetchInstruction(i) != 0) {
-		printf("0x%08x: 0x%08x\n", i, printInstruction(i));
-		i += 4;
+	for(int i = 0; i < size; i+=4) {
+		if(fetchInstruction(i) != 0) {
+			printf("0x%08x: 0x%08x\n", i, printInstruction(i));
+		}
 	}
 
 }
