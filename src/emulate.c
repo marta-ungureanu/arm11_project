@@ -52,7 +52,8 @@ uint32_t getDPRn(uint32_t instruction);
 uint32_t getDPRd(uint32_t instruction);
 uint32_t getDPOperand2(uint32_t instruction);
 uint32_t executeLogical(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Value, uint8_t destinationRegister);
-uint32_t executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Value, uint8_t destinationRegister);
+int executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Value, uint8_t destinationRegister);
+bool checkAdditionOverflow(uint32_t a, uint32_t b);
 
 void setZBit();
 void setCBit(uint8_t value);
@@ -122,6 +123,7 @@ void pipeline(void) {
 			return;
 		}
 		ARM.registers[PC] += 4;
+		printStatus();
 	}
 }
 
@@ -404,10 +406,12 @@ void dataProcessing(uint32_t instruction) {
 			result = executeArithmetic(opCode, firstRegister, operand2, destinationRegister);
 		}
 		if (sBitSet(instruction)) {
+			printf("the result in bitset is: %d", result);
 			if (result == 0) {
 				setZBit();
 			}
 			setNBit(result >> 31);
+			printf("the n bit should be: %d\n", result >> 31);
 		}
 	}
 }
@@ -450,7 +454,13 @@ void setZBit() {
 }
 
 void setNBit(uint8_t value) {
-	ARM.registers[CPSR] ^= (-value ^ ARM.registers[CPSR]) & (1 << 31);
+	if (value) {
+		ARM.registers[CPSR] |= (1 << 31);
+	}
+	else {
+		ARM.registers[CPSR] &= ~(1 << 31);
+	}
+	//ARM.registers[CPSR] ^= (-value ^ ARM.registers[CPSR]) & (1 << 31);
 }
 
 uint32_t getDPOpCode(uint32_t instruction) {
@@ -569,44 +579,109 @@ uint32_t executeLogical(uint8_t opCode, uint8_t firstRegister, uint32_t operand2
 
 
 
-uint32_t executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Value, uint8_t destinationRegister) {
+int executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Value, uint8_t destinationRegister) {
+	uint32_t result; 
 	switch (opCode) {
 	case 2:
-		if (ARM.registers[firstRegister] < operand2Value) {
-			setCBit(1);
-		}
-		else {
+		/*if (((unsigned)ARM.registers[firstRegister]) < ((unsigned)operand2Value)) {
 			setCBit(0);
 		}
-		ARM.registers[destinationRegister] = (ARM.registers[firstRegister] - operand2Value);
+		else {
+			setCBit(1);
+		}
+		*/
+		ARM.registers[destinationRegister] = (ARM.registers[firstRegister] + (~(operand2Value) +1));
+		if (checkAdditionOverflow(ARM.registers[firstRegister], (~(operand2Value)+1))) {
+			setCBit(0);
+		}
+		else {
+			setCBit(1);
+		}
 		return ARM.registers[destinationRegister];
 	case 3:
-		if (operand2Value <= ARM.registers[firstRegister]) {
+		/*if (operand2Value <= ARM.registers[firstRegister]) {
 			setCBit(0);
 		}
 		else {
 			setCBit(1);
 		}
-		ARM.registers[destinationRegister] = (operand2Value - ARM.registers[firstRegister]);
+		*/
+		ARM.registers[destinationRegister] = (operand2Value + ((~ARM.registers[firstRegister]) +1));
+		/*if (ARM.registers[destinationRegister] <= operand2Value) {
+			setCBit(0);
+		}
+		else {
+			setCBit(1);
+		}
+		*/
+
+		if (checkAdditionOverflow(operand2Value, ((~ARM.registers[firstRegister]) + 1))) {
+			setCBit(0);
+		}
+		else {
+			setCBit(1);
+		}
 		return ARM.registers[destinationRegister];
 	case 4:
 		ARM.registers[destinationRegister] = (ARM.registers[firstRegister] + operand2Value);
-		if (ARM.registers[destinationRegister] < ARM.registers[firstRegister]) {
+		if (checkAdditionOverflow(ARM.registers[firstRegister], operand2Value)) {
 			setCBit(1);
 		}
 		else {
 			setCBit(0);
 		}
+			/*
+			ARM.registers[destinationRegister] < ARM.registers[firstRegister]) {
+			setCBit(1);
+		}
+		else {
+			setCBit(0);
+		}
+		*/
 		return ARM.registers[destinationRegister];
 	case 10:
-		if (ARM.registers[firstRegister] < operand2Value) {
+		/*if (ARM.registers[firstRegister] < operand2Value) {
 			setCBit(0);
 		}
 		else {
 			setCBit(1);
 		}
-		return ARM.registers[firstRegister] - operand2Value;
+		*/
+		if (operand2Value == 0) {
+			setCBit(1);
+			return ARM.registers[firstRegister];
+		}
+		
+		result = ARM.registers[firstRegister] - operand2Value;
+		
+		/*
+		if (result <= ARM.registers[firstRegister]) {
+			setCBit(0);
+		}
+		else {
+			setCBit(1);
+		}
+		*/
+		if (ARM.registers[firstRegister] != operand2Value) {
+			printf("%d\n", checkAdditionOverflow(ARM.registers[firstRegister], ((~operand2Value) + 1)));
+			if (checkAdditionOverflow(ARM.registers[firstRegister], ((~operand2Value) + 1)) || ARM.registers[firstRegister] < operand2Value) {
+				setCBit(0);
+			}
+			else {
+				setCBit(1);
+			}
+		}
+		else {
+			setCBit(1);
+		}
+		printf("result is %d \n ", result);
+		return  result;
 	}
 	printf("unreachable code in executeArithmetic.");
 	return 0;
+}
+
+bool checkAdditionOverflow(uint32_t a, uint32_t b) {
+	return (a + b < a || a + b < b);
+
 }
