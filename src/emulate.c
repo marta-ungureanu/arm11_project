@@ -261,7 +261,7 @@ void singleDataTransfer(uint32_t instruction) {
 	if(!checkConditionField(instruction)) {
 		return;
 	}
-	printf("%u \n", instruction);
+	printf("Instruction is %u \n", instruction);
 
 	uint32_t maskRn = 0xf << 16;
 	uint32_t maskRd = 0xf << 12;
@@ -288,12 +288,10 @@ void singleDataTransfer(uint32_t instruction) {
 	} 
 	
 	uint32_t address = ARM.registers[rn];
-	if(rn == PC) {
-		address -= 8;
-	}
 	
 	if(flagP) {
 		address += sign * offset;
+		printf("HEREEEEE %u \n", address);
 		load_store(rd, address, flagL);
 	} else {
 		load_store(rd, address, flagL);
@@ -306,6 +304,7 @@ void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
 	if (flagL) {
 		printf("address value is: %u \n", address);
 		if (address < (SIZE_OF_MEMORY - 3)) {
+			printf("HEREEEEE %u \n", fetchInstruction(address));
 			ARM.registers[rd] = fetchInstruction(address);
 		}
 		else {
