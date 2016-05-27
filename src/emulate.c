@@ -583,8 +583,10 @@ int executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Va
 			setCBit(1);
 		}
 		*/
-
-		if (checkAdditionOverflow(operand2Value, ((~ARM.registers[firstRegister]) + 1))) {
+		if( ARM.registers[firstRegister] > operand2Value){
+			setCBit(0);
+		}
+		else if (checkAdditionOverflow(operand2Value, ((~ARM.registers[firstRegister]) + 1))) {
 			setCBit(0);
 		}
 		else {
