@@ -111,8 +111,7 @@ void pipeline(void) {
 			initializedVariables ++;
 		}
 		ARM.registers[PC] += 4;
-//		printStatus();
-
+		//printStatus();
 	}
 }
 
@@ -309,16 +308,44 @@ void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
 		}*/
 	}
 	else {
+		//printf("hello\n");
 		uint32_t registerContent = ARM.registers[rd];
 		uint32_t byte4 = registerContent & EIGHT_BIT_MASK;
 		uint32_t byte3 = (registerContent & (EIGHT_BIT_MASK << 8)) >> 8;
 		uint32_t byte2 = (registerContent & (EIGHT_BIT_MASK << 16)) >> 16;
 		uint32_t byte1 = (registerContent & (EIGHT_BIT_MASK << 24)) >> 24;
+		if(address + 3 < SIZE_OF_MEMORY){
+			ARM.memory[address] = byte4;
+			ARM.memory[address + 1] = byte3;
+			ARM.memory[address + 2] = byte2;
+			ARM.memory[address + 3] = byte1;
+		} else {
+			switch(address){
+			case 0x20200008:
+				//ARM.registers[rd] = address;
+				printf("One GPIO pin from 20 to 29 has been accessed\n");
+				break;
+			case 0x20200004:
+				//ARM.registers[rd] = address;
+				printf("One GPIO pin from 10 to 19 has been accessed\n");
+				break;
+			case 0x20200000:
+				//ARM.registers[rd] = address;
+				printf("One GPIO pin from 0 to 9 has been accessed\n");
+				break;
+			case 0x20200028:
+				//ARM.registers[rd] = address;
+				printf("PIN OFF\n");
+				break;
+			case 0x2020001c:
+				//ARM.registers[rd] = address;
+				printf("PIN ON\n");
+				break;
+			default:
+				printf("Error: Out of bounds memory access at address 0x%08x\n", address);
+			}
+		}
 
-		ARM.memory[address] = byte4;
-		ARM.memory[address + 1] = byte3;
-		ARM.memory[address + 2] = byte2;
-		ARM.memory[address + 3] = byte1;
 	}
 }
 
@@ -353,7 +380,12 @@ void printStatus(void) {
 		} else {
 			continue;
 		}
-		if(i == 16) {
+		if(ARM.registers[i] < -999999999) {
+			printf("%12d (0x%08x)\n", ARM.registers[i], ARM.registers[i]);
+		} else {
+			printf("%11d (0x%08x)\n", ARM.registers[i], ARM.registers[i]);
+		}
+		/*if(i == 16) {
 			if(ARM.registers[i] < 0) {
 				printf("%12d (0x%08x)\n", ARM.registers[i], ARM.registers[i]);
 			} else {
@@ -361,7 +393,7 @@ void printStatus(void) {
 			}
 		} else {
 			printf("%11d (0x%08x)\n", ARM.registers[i], ARM.registers[i]);
-		}
+		}*/
 		
 	}
 
@@ -481,20 +513,20 @@ uint32_t getDPOperand2(uint32_t instruction) {
 
 uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 	uint8_t shiftType = (operand2 >> 5) & TWO_BIT_MASK;
-	uint8_t shiftValue = operand2 >> 8;
+	uint8_t shiftValue = operand2 >> 7;
 	uint32_t value = ARM.registers[(operand2 & FOUR_BIT_MASK)];
 	if (shiftValue > 0) {
 		switch (shiftType) {
 		case 0:
 			value = value << (shiftValue - 1);
-			if (isLogical(opCode)) {
+			if (isLogical(opCode) && sBitSet(instruction)) {
 				setCBit(value >> 31);
 			}
 			return value << 1;
 
 		case 1:
 			value = value >> (shiftValue - 1);
-			if (isLogical(opCode)) {
+			if (isLogical(opCode) && sBitSet(instruction)) {
 				setCBit(value % 2);
 			}
 			return value >> 1;
@@ -509,7 +541,7 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 				}
 				shiftValue--;
 			}
-			if (isLogical(opCode)) {
+			if (isLogical(opCode) && sBitSet(instruction)) {
 				setCBit(value % 2);
 			}
 			if ((value >> 31) == 1) {
@@ -544,10 +576,8 @@ uint32_t DPRotateRight(uint32_t value, uint8_t shiftValue, uint8_t opCode, uint3
 		}
 		shiftValue--;
 	}
-	if (isLogical(opCode)) {
-		if (sBitSet(instruction)) {
-			setCBit(value >> 31);
-		}
+	if (isLogical(opCode) && sBitSet(instruction)) {	
+		setCBit(value >> 31);
 	}
 	return value;
 }
@@ -613,7 +643,7 @@ int executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Va
 		else {
 			setCBit(1);
 		}
-		*/
+		*/ 
 		if( ARM.registers[firstRegister] > operand2Value){
 			setCBit(0);
 		}
