@@ -273,14 +273,40 @@ void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
 	if (flagL) {
 		if (address < (SIZE_OF_MEMORY - 3)) {
 			ARM.registers[rd] = fetchInstruction(address);
+		} else {
+			switch(address){
+			case 0x20200008:
+				ARM.registers[rd] = address;
+				printf("One GPIO pin from 20 to 29 has been accessed\n");
+				break;
+			case 0x20200004:
+				ARM.registers[rd] = address;
+				printf("One GPIO pin from 10 to 19 has been accessed\n");
+				break;
+			case 0x20200000:
+				ARM.registers[rd] = address;
+				printf("One GPIO pin from 0 to 9 has been accessed\n");
+				break;
+			case 0x20200028:
+				ARM.registers[rd] = address;
+				printf("PIN OFF\n");
+				break;
+			case 0x2020001c:
+				ARM.registers[rd] = address;
+				printf("PIN ON\n");
+				break;
+			default:
+				printf("Error: Out of bounds memory access at address 0x%08x\n", address);
+			}
+
 		}
-		else if (address == 0x20200004){
+		/*else if (address == 0x20200004){
 			ARM.registers[rd] = address;
 			printf("One GPIO pin from 10 to 19 has been accessed\n");
 		}
 		else {
 			printf("Error: Out of bounds memory access at address 0x%08x\n", address);
-		}
+		}*/
 	}
 	else {
 		uint32_t registerContent = ARM.registers[rd];
