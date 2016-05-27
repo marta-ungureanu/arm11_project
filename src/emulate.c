@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
-
+#include <limits.h>
 #define SIZE_OF_MEMORY 65536
 #define NUMBER_OF_REGISTERS 17
 #define PC 15
@@ -87,7 +87,7 @@ void pipeline(void) {
 	uint32_t instrToExecute = -1;
 	int initializedVariables = 0;
 
-	while(1){		
+	while(1){	
 		if(decodedInstr == -1) {
 			continue;
 		}
@@ -97,7 +97,8 @@ void pipeline(void) {
 			fetchedInstr = fetchInstruction(ARM.registers[PC]);
 			execute(decodedInstr, instrToExecute);
 			if(decodedInstr == 4 && checkConditionField(instrToExecute)) {
-				return;
+			initializedVariables =0;
+			//return;
 			}
 			decodedInstr = decode(instrToDecode);
 		} else if(initializedVariables > 0) {
@@ -106,10 +107,11 @@ void pipeline(void) {
 			decodedInstr = decode(instrToDecode);
 			initializedVariables ++;
 		} else {
-			fetchedInstr = fetchInstruction(ARM.registers[PC]);
+		fetchedInstr = fetchInstruction(ARM.registers[PC]);
 			initializedVariables ++;
 		}
 		ARM.registers[PC] += 4;
+//		printStatus();
 
 	}
 }
@@ -272,6 +274,10 @@ void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
 		if (address < (SIZE_OF_MEMORY - 3)) {
 			ARM.registers[rd] = fetchInstruction(address);
 		}
+		else if (address == 0x20200004){
+			ARM.registers[rd] = address;
+			printf("One GPIO pin from 10 to 19 has been accessed\n");
+		}
 		else {
 			printf("Error: Out of bounds memory access at address 0x%08x\n", address);
 		}
@@ -302,14 +308,12 @@ void branch(uint32_t instruction) {
 	}
 	offset *= 4;	
 	offset += signBit;
-	ARM.registers[PC] += offset;
-	pipeline();
+	ARM.registers[PC] += offset -4;
 }
 
 void printStatus(void) {
 
 	printf("Registers:\n");
-
 
 	for(int i = 0; i < NUMBER_OF_REGISTERS; i++) {
 		if(i < 10) {
@@ -342,7 +346,6 @@ void printStatus(void) {
 			printf("0x%08x: 0x%08x\n", i, printInstruction(i));
 		}
 	}
-
 }
 
 void dataProcessing(uint32_t instruction) {
@@ -378,7 +381,9 @@ void dataProcessing(uint32_t instruction) {
 			}
 			setNBit(result >> 31);
 		}
+	
 	}
+
 }
 
 bool isLogical(uint8_t opCode) {
@@ -558,7 +563,6 @@ int executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Va
 			setCBit(1);
 		}
 		*/
-		
 		ARM.registers[destinationRegister] = (ARM.registers[firstRegister] + (~(operand2Value) +1));
 		if (checkAdditionOverflow(ARM.registers[firstRegister], (~(operand2Value)+1))) {
 			setCBit(0);
@@ -566,6 +570,7 @@ int executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Va
 		else {
 			setCBit(1);
 		}
+	//	printf("is sub returning");
 		return ARM.registers[destinationRegister];
 	case 3:
 		/*if (operand2Value <= ARM.registers[firstRegister]) {
@@ -594,6 +599,7 @@ int executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Va
 		}
 		return ARM.registers[destinationRegister];
 	case 4:
+		
 		ARM.registers[destinationRegister] = (ARM.registers[firstRegister] + operand2Value);
 		if (checkAdditionOverflow(ARM.registers[firstRegister], operand2Value)) {
 			setCBit(1);
@@ -610,7 +616,7 @@ int executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Va
 		}
 		*/
 		return ARM.registers[destinationRegister];
-	case 10: 
+	case 10:
 		if(operand2Value > ARM.registers[firstRegister]){
 			setCBit(0);
 		}
@@ -625,6 +631,8 @@ int executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Va
 }
 
 bool checkAdditionOverflow(uint32_t a, uint32_t b) {
-	return (a + b < a || a + b < b);
+	return ( a > (INT_MAX - b) || b > (INT_MAX -a));
+
+//	return (a + b < a || a + b < b);
 
 }
