@@ -16,7 +16,6 @@
  * register after transferring.
  */
 void singleDataTransfer(uint32_t instruction) {
-
 	// if the condition does not hold, the instruction is not executed
 	if(!checkConditionField(instruction)) {
 		return;
@@ -52,7 +51,6 @@ void singleDataTransfer(uint32_t instruction) {
 		load_store(rd, address, flagL);
 		ARM.registers[rn] += sign * offset;
 	}
-
 }
 
 /* function that load or store 
@@ -63,7 +61,6 @@ void singleDataTransfer(uint32_t instruction) {
  * if the address is out of bounds it will print a message accordingly
  */
 void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
-
 	if (flagL) {
 		if (address < (SIZE_OF_MEMORY - 3)) {
 			ARM.registers[rd] = fetchInstruction(address);
@@ -78,9 +75,12 @@ void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
 
 		uint32_t registerContent = ARM.registers[rd];
 		uint32_t byte4 = registerContent & EIGHT_BIT_MASK;
-		uint32_t byte3 = (registerContent & (EIGHT_BIT_MASK << 8)) >> 8;
-		uint32_t byte2 = (registerContent & (EIGHT_BIT_MASK << 16)) >> 16;
-		uint32_t byte1 = (registerContent & (EIGHT_BIT_MASK << 24)) >> 24;
+		uint32_t byte3 = (registerContent & (EIGHT_BIT_MASK << 8)) 
+				  >> 8;
+		uint32_t byte2 = (registerContent & (EIGHT_BIT_MASK << 16)) 
+				  >> 16;
+		uint32_t byte1 = (registerContent & (EIGHT_BIT_MASK << 24)) 
+				  >> 24;
 
 		if(address + 3 < SIZE_OF_MEMORY){
 			ARM.memory[address] = byte4;
@@ -92,20 +92,20 @@ void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
 		}
 
 	}
-
 }
 
 /* function that prints a message when the address is out of bounds taking into 
  * consideration particular cases related to pins
  */
 uint32_t printMessage(uint32_t address) {
-
 	switch(address) {
 		case 0x20200008:
-			printf("One GPIO pin from 20 to 29 has been accessed\n");
+			printf("One GPIO pin from 20 to 29 has been ");
+			printf("accessed\n");
 			return 1;
 		case 0x20200004:
-			printf("One GPIO pin from 10 to 19 has been accessed\n");
+			printf("One GPIO pin from 10 to 19 has been ");
+			printf("accessed\n");
 			return 1;
 		case 0x20200000:
 			printf("One GPIO pin from 0 to 9 has been accessed\n");
@@ -117,7 +117,8 @@ uint32_t printMessage(uint32_t address) {
 			printf("PIN ON\n");
 			return 1;
 		default:
-			printf("Error: Out of bounds memory access at address 0x%08x\n", address);
+			printf("Error: Out of bounds memory access at address");
+			printf(" 0x%08x\n", address);
 			return 0;
 	}
 
