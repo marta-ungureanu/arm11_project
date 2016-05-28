@@ -15,7 +15,7 @@
 
 struct State {
 	uint8_t memory[SIZE_OF_MEMORY];
-	int registers[NUMBER_OF_REGISTERS];
+	int32_t registers[NUMBER_OF_REGISTERS];
 };
 
 struct State ARM;

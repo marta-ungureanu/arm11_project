@@ -18,9 +18,9 @@
 void pipeline(void) {
 	uint32_t fetchedInstr;
 	uint32_t instrToDecode;
-	int decodedInstr = 0;
+	int32_t decodedInstr = 0;
 	uint32_t instrToExecute = -1;
-	int initializedVariables = 0;
+	int32_t initializedVariables = 0;
 
 	while(1){
 		if(decodedInstr == -1) {
@@ -52,7 +52,7 @@ void pipeline(void) {
 /* function that returns a code for every instruction, specifying what kind of
  * instruction it is
  */
-int decode(uint32_t instruction) {
+int32_t decode(uint32_t instruction) {
 	if(instruction == 0){
 		return 0;
 	}
@@ -73,7 +73,7 @@ int decode(uint32_t instruction) {
 }
 
 // function that execute an instruction based on what kind of operation it represents
-void execute(int code, uint32_t instruction) {
+void execute(int32_t code, uint32_t instruction) {
 	switch(code){
 	case 0:
 		printStatus();
@@ -97,7 +97,7 @@ void execute(int code, uint32_t instruction) {
 /* function that returns an instruction stored in little endian at a given address
  * in the memory
  */
-uint32_t fetchInstruction(int address) {
+uint32_t fetchInstruction(int32_t address) {
 	uint32_t byte4 = ARM.memory[address];
 	uint32_t byte3 = ARM.memory[address + 1] << 8;
 	uint32_t byte2 = ARM.memory[address + 2] << 16;
