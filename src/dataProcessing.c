@@ -39,6 +39,8 @@ void dataProcessing(uint32_t instruction) {
 		} else if (isArithmetic(opCode)) {
 			result = executeArithmetic(opCode, firstRegister, operand2,
 				 destinationRegister);
+		} else {
+			printf("OPCODE UNDEFINED IN DATAPROCESSING FUNCTION.");
 		}
 		if (sBitSet(instruction)) {
 			if (result == 0) {
@@ -71,10 +73,12 @@ bool isImmediateOperandSet(uint32_t instruction) {
 	return (((instruction >> 25) % 2) == 1);
 }
 
+// Function that determines if the S bit is set
 bool sBitSet(uint32_t instruction) {
 	return (((instruction >> 20) % 2) == 1);
 }
 
+// Function that sets the CFlag to the supplied value
 void setCBit(uint8_t value) {
 	if (value) {
 		ARM.registers[CPSR] |= (1 << 29);
@@ -83,6 +87,7 @@ void setCBit(uint8_t value) {
 	}
 }
 
+// Function that sets the ZFlag to the supplied value
 void setZBit(uint8_t value) {
 	if (value) {
 		ARM.registers[CPSR] |= (1 << 30);
@@ -91,6 +96,7 @@ void setZBit(uint8_t value) {
 	}
 }
 
+// Function that sets the NFlag to the supplied value
 void setNBit(uint8_t value) {
 	if (value) {
 		ARM.registers[CPSR] |= (1 << 31);
@@ -99,9 +105,12 @@ void setNBit(uint8_t value) {
 	}
 }
 
+/*Function that determines and carries out the appropriate shift, setting
+ *flags if necessary
+ */
 uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 	uint8_t shiftType = (operand2 >> 5) & TWO_BIT_MASK;
-		uint32_t value = ARM.registers[(operand2 & FOUR_BIT_MASK)];
+	uint32_t value = ARM.registers[(operand2 & FOUR_BIT_MASK)];
 	uint8_t shiftValue;
 	if((operand2 >> 4) % 2 == 0){
 		shiftValue = operand2 >> 7;
@@ -153,6 +162,8 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 	return value;
 }
 
+/* Function that carries out a rotate right shift
+*/
 uint32_t DPRotateRight(uint32_t value, uint8_t shiftValue, uint8_t opCode,
 	uint32_t instruction) {
 	shiftValue = shiftValue *2;
