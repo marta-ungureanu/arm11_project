@@ -3,7 +3,6 @@
 #include "armStructure.h"
 
 void singleDataTransfer(uint32_t instruction) {
-
 	if(!checkConditionField(instruction)) {
 		return;
 	}
@@ -26,12 +25,9 @@ void singleDataTransfer(uint32_t instruction) {
 		}
 		offset = DPShift(offset, ((offset >> 1) & 3), instruction);
 	}
-
-
 	if(flagU) {
 		sign = 1;
 	}
-
 	if(flagP) {
 		address += sign * offset;
 		load_store(rd, address, flagL);
@@ -43,7 +39,6 @@ void singleDataTransfer(uint32_t instruction) {
 }
 
 void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
-
 	if (flagL) {
 		if (address < (SIZE_OF_MEMORY - 3)) {
 			ARM.registers[rd] = fetchInstruction(address);
@@ -55,12 +50,14 @@ void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
 
 		}
 	} else {
-
 		uint32_t registerContent = ARM.registers[rd];
 		uint32_t byte4 = registerContent & EIGHT_BIT_MASK;
-		uint32_t byte3 = (registerContent & (EIGHT_BIT_MASK << 8)) >> 8;
-		uint32_t byte2 = (registerContent & (EIGHT_BIT_MASK << 16)) >> 16;
-		uint32_t byte1 = (registerContent & (EIGHT_BIT_MASK << 24)) >> 24;
+		uint32_t byte3 = (registerContent & (EIGHT_BIT_MASK << 8)) 
+				 >> 8;
+		uint32_t byte2 = (registerContent & (EIGHT_BIT_MASK << 16)) 
+				 >> 16;
+		uint32_t byte1 = (registerContent & (EIGHT_BIT_MASK << 24)) 
+				 >> 24;
 
 		if(address + 3 < SIZE_OF_MEMORY){
 			ARM.memory[address] = byte4;
@@ -70,7 +67,6 @@ void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
 		} else {
 			printMessage(address);
 		}
-
 	}
 }
 
