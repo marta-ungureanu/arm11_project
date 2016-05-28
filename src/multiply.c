@@ -2,9 +2,7 @@
 #include "armStructure.h"
 
 // function that executes the multiply instructions
-
 void multiply(uint32_t instruction) {
-
 	// if the condition does not hold, the instruction is not executed
 	if(!checkConditionField(instruction)) {
 		return;
@@ -17,11 +15,12 @@ void multiply(uint32_t instruction) {
 	uint32_t rs = (instruction & MUL_SD_REG_MASK3) >> 8;
 	uint32_t rm = instruction & MUL_SD_REG_MASK4;
 
-	/* depending on the accumulate bit, the instruction performs a multiply and accumulate,
-	 * or a multiply only
+	/* depending on the accumulate bit, the instruction performs 
+	 * a multiply and accumulate, or a multiply only
 	 */
 	if(accumulator) {
-		ARM.registers[rd] = ARM.registers[rm] * ARM.registers[rs] + ARM.registers[rn];
+		ARM.registers[rd] = ARM.registers[rm] * ARM.registers[rs] 
+				  + ARM.registers[rn];
 	} else {
 		ARM.registers[rd] = ARM.registers[rm] * ARM.registers[rs];
 	}
@@ -47,4 +46,3 @@ void multiply(uint32_t instruction) {
 		}
 	}
 }
-

@@ -16,20 +16,21 @@
  */
 
 void dataProcessing(uint32_t instruction) {
-
+	// if the condition does not hold, the instruction is not executed
 	if (!checkConditionField(instruction)) {
 		return;
 	} else {
 
 		uint32_t opCode = ((instruction >> 21) & FOUR_BIT_MASK);
 		uint8_t firstRegister = ((instruction >> 16) & FOUR_BIT_MASK);
-		uint8_t destinationRegister = ((instruction >> 12) & FOUR_BIT_MASK);
+		uint8_t destinationRegister = ((instruction >> 12) 
+					      & FOUR_BIT_MASK);
 		uint32_t operand2 = (instruction & DP_OPERAND2_MASK);
 		uint32_t result;
 
 		if (isImmediateOperandSet(instruction)) {
-			operand2 = DPRotateRight((operand2 & EIGHT_BIT_MASK), operand2 >> 8,
-			 opCode, instruction);
+			operand2 = DPRotateRight((operand2 & EIGHT_BIT_MASK),
+				   operand2 >> 8, opCode, instruction);
 		} else {
 			operand2 = DPShift(operand2, opCode, instruction);
 		}
@@ -37,8 +38,8 @@ void dataProcessing(uint32_t instruction) {
 			result = executeLogical(opCode, firstRegister, operand2,
 				 destinationRegister);
 		} else if (isArithmetic(opCode)) {
-			result = executeArithmetic(opCode, firstRegister, operand2,
-				 destinationRegister);
+			result = executeArithmetic(opCode, firstRegister, 
+                                 operand2, destinationRegister);
 		} else {
 			printf("OPCODE UNDEFINED IN DATAPROCESSING FUNCTION.");
 		}
@@ -156,7 +157,8 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 			}
 			return value;
 		case 3:
-			return DPRotateRight(value, shiftValue, opCode, instruction);
+			return DPRotateRight(value, shiftValue,
+			       opCode, instruction);
 		}
 	}
 	return value;
@@ -227,7 +229,7 @@ uint32_t executeArithmetic(uint8_t opCode, uint8_t firstRegister,
 		if( ARM.registers[firstRegister] > operand2Value){
 			setCBit(0);
 		} else if (checkAdditionOverflow(operand2Value,
-			((~ARM.registers[firstRegister]) + 1))) {
+			  ((~ARM.registers[firstRegister]) + 1))) {
 			setCBit(0);
 		} else {
 			setCBit(1);
@@ -236,7 +238,8 @@ uint32_t executeArithmetic(uint8_t opCode, uint8_t firstRegister,
 		(operand2Value - ARM.registers[firstRegister]);
 		return ARM.registers[destinationRegister];
 	case 4:
-		if (checkAdditionOverflow(ARM.registers[firstRegister], operand2Value)) {
+		if (checkAdditionOverflow(ARM.registers[firstRegister],
+		    operand2Value)) {
 			setCBit(1);
 		} else {
 			setCBit(0);

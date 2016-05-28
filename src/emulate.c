@@ -6,12 +6,13 @@
 #include "armStructure.h"
 #include "emulator_misc.h"
 
-
+/* reads binary instructions from a file and executes them 
+ * using a pipeline
+ */
 int main(int argc, char **argv) {
-
 	FILE *fin;
-
-	if((fin = fopen(argv[1], "r")) == NULL) {
+	
+	if((fin = fopen(argv[argc - 1], "r")) == NULL) {
 		perror("Error opening file.txt!");
 		exit(EXIT_FAILURE);
 	}
@@ -20,9 +21,10 @@ int main(int argc, char **argv) {
 	int size = ftell(fin);
 	rewind(fin);
 
-	fread(ARM.memory, size, 1, fin);
+	fread(ARM.memory, size, BLOCK_SIZE, fin);
+	fclose(fin);
 
 	pipeline();
-
+	
 	return EXIT_SUCCESS;
 }
