@@ -65,6 +65,7 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction);
 void setZBit(uint8_t value);
 void setCBit(uint8_t value);
 void setNBit(uint8_t value);
+uint32_t printMessage(uint32_t address);
 
 
 #endif /* EMULATOR_FUNCTIONS_H_ */
