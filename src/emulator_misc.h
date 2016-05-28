@@ -32,31 +32,36 @@
 #define FLAG_N_MASK 1 << 31
 #define NEG_NO_THAT_SHIFTS_PRINTING -999999999
 
-uint32_t fetchInstruction(int address);
-int decode(uint32_t instruction);
-void execute(int code, uint32_t instruction);
 void pipeline(void);
+void execute(int code, uint32_t instruction);
+int decode(uint32_t instruction);
 bool checkConditionField(uint32_t instruction);
+uint32_t fetchInstruction(int address);
+
+
+
+
 void multiply(uint32_t instruction);
 void singleDataTransfer(uint32_t instruction);
 void branch(uint32_t instruction);
+void dataProcessing(uint32_t instruction);
 void printStatus(void);
 uint32_t printInstruction(int address);
+
+
 void load_store(uint32_t rd, uint32_t address, uint32_t flagL);
-uint32_t DPRotateRight(uint32_t operand2, uint8_t value, uint8_t opCode, uint32_t instruction);
-uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction);
-void dataProcessing(uint32_t instruction);
+
+
+
 bool isImmediateOperandSet(uint32_t instruction);
 bool sBitSet(uint32_t instruction);
 bool isLogical(uint8_t opCode);
 bool isArithmetic(uint8_t opCode);
-uint32_t getDPOpCode(uint32_t instruction);
-uint32_t getDPRn(uint32_t instruction);
-uint32_t getDPRd(uint32_t instruction);
-uint32_t getDPOperand2(uint32_t instruction);
-uint32_t executeLogical(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Value, uint8_t destinationRegister);
-int executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Value, uint8_t destinationRegister);
 bool checkAdditionOverflow(uint32_t a, uint32_t b);
+uint32_t executeLogical(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Value, uint8_t destinationRegister);
+uint32_t executeArithmetic(uint8_t opCode, uint8_t firstRegister, uint32_t operand2Value, uint8_t destinationRegister);
+uint32_t DPRotateRight(uint32_t operand2, uint8_t value, uint8_t opCode, uint32_t instruction);
+uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction);
 void setZBit(uint8_t value);
 void setCBit(uint8_t value);
 void setNBit(uint8_t value);

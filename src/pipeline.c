@@ -104,5 +104,3 @@ uint32_t fetchInstruction(int address) {
 	uint32_t byte1 = ARM.memory[address + 3] << 24;
 	return (byte4 | byte3 | byte2 | byte1);
 }
-
-
