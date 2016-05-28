@@ -1,7 +1,7 @@
 #include "emulator_misc.h"
 #include "armStructure.h"
 
-// function that prints a 4 byte instruction found at a given address in the memory
+// function that prints a 4 byte instruction found at a given address in memory
 uint32_t printInstruction(int address) {
 	uint32_t byte4 = ARM.memory[address + 3];
 	uint32_t byte3 = ARM.memory[address + 2] << 8;
@@ -12,7 +12,6 @@ uint32_t printInstruction(int address) {
 
 // function that prints the status of the ARM machine
 void printStatus(void) {
-
 	printf("Registers:\n");
 
 	for(int i = 0; i < NUMBER_OF_REGISTERS; i++) {
@@ -28,13 +27,14 @@ void printStatus(void) {
 			continue;
 		}
 		if(ARM.registers[i] < NEG_NO_THAT_SHIFTS_PRINTING) {
-			printf("%12d (0x%08x)\n", ARM.registers[i], ARM.registers[i]);
+			printf("%12d (0x%08x)\n",
+			       ARM.registers[i], ARM.registers[i]);
 		} else {
-			printf("%11d (0x%08x)\n", ARM.registers[i], ARM.registers[i]);
+			printf("%11d (0x%08x)\n", 
+			       ARM.registers[i], ARM.registers[i]);
 		}
-
 	}
-
+	
 	printf("Non-zero memory:\n");
 
 	for(int i = 0; i < SIZE_OF_MEMORY; i+=4) {

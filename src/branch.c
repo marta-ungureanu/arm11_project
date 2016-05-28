@@ -1,7 +1,9 @@
 #include "emulator_misc.h"
 #include "armStructure.h"
 
+//function that executes a branch instruction
 void branch(uint32_t instruction) {
+	// if the condition does not hold, the instruction is not executed	
 	if(!checkConditionField(instruction)) {
 		return;
 	}

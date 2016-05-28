@@ -16,7 +16,6 @@
  * address
  */
 void pipeline(void) {
-
 	uint32_t fetchedInstr;
 	uint32_t instrToDecode;
 	int decodedInstr = 0;
@@ -24,7 +23,6 @@ void pipeline(void) {
 	int initializedVariables = 0;
 
 	while(1){
-		// if the instruction is not in the supported set, it is not executed
 		if(decodedInstr == -1) {
 			continue;
 		}
@@ -33,7 +31,8 @@ void pipeline(void) {
 			instrToDecode = fetchedInstr;
 			fetchedInstr = fetchInstruction(ARM.registers[PC]);
 			execute(decodedInstr, instrToExecute);
-			if(decodedInstr == 4 && checkConditionField(instrToExecute)) {
+			if(decodedInstr == 4 
+			   && checkConditionField(instrToExecute)) {
 			initializedVariables =0;
 			}
 			decodedInstr = decode(instrToDecode);
@@ -55,9 +54,10 @@ void pipeline(void) {
  */
 int decode(uint32_t instruction) {
 	if(instruction == 0){
-			return 0;
+		return 0;
 	}
-	if (((instruction >> 4) & FOUR_BIT_MASK) == 9 && (((instruction >> 22) & SIX_BIT_MASK) == 0)) {
+	if (((instruction >> 4) & FOUR_BIT_MASK) == 9 
+	    && (((instruction >> 22) & SIX_BIT_MASK) == 0)) {
 		return 1;
 	}
 	if ((DATA_PROCESSING_MASK & instruction) == 0) {
