@@ -2,7 +2,6 @@
 #include "armStructure.h"
 
 // function that executes the multiply instructions
-
 void multiply(uint32_t instruction) {
 	// if the condition does not hold, the instruction is not executed
 	if(!checkConditionField(instruction)) {
