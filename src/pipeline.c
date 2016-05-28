@@ -2,6 +2,19 @@
 #include "emulator_misc.h"
 #include "armStructure.h"
 
+/* function that implements the three stages pipeline
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * we distinguish between 3 cases:
+ * no variable was initialized - the first instruction is being fetched
+ * a variable was initialized - we have a fetched instruction to decode and we
+ *                              fetch a new one
+ * two variables were initialized - we have an instruction to execute, an
+ *                                  instruction to decode and we fetch a new one
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * if we execute a branch with a condition that holds, the pipeline
+ * "starts" again, just fetching the instruction at the current PC
+ * address
+ */
 void pipeline(void) {
 
 	uint32_t fetchedInstr;
@@ -11,6 +24,7 @@ void pipeline(void) {
 	int initializedVariables = 0;
 
 	while(1){
+		// if the instruction is not in the supported set, it is not executed
 		if(decodedInstr == -1) {
 			continue;
 		}
@@ -21,7 +35,6 @@ void pipeline(void) {
 			execute(decodedInstr, instrToExecute);
 			if(decodedInstr == 4 && checkConditionField(instrToExecute)) {
 			initializedVariables =0;
-			//return;
 			}
 			decodedInstr = decode(instrToDecode);
 		} else if(initializedVariables > 0) {
@@ -34,10 +47,12 @@ void pipeline(void) {
 			initializedVariables ++;
 		}
 		ARM.registers[PC] += 4;
-		//printStatus();
 	}
 }
 
+/* function that returns a code for every instruction, specifying what kind of
+ * instruction it is
+ */
 int decode(uint32_t instruction) {
 	if(instruction == 0){
 			return 0;
@@ -57,6 +72,7 @@ int decode(uint32_t instruction) {
 	return -1;
 }
 
+// function that execute an instruction based on what kind of operation it represents
 void execute(int code, uint32_t instruction) {
 	switch(code){
 	case 0:
@@ -78,6 +94,9 @@ void execute(int code, uint32_t instruction) {
 	}
 }
 
+/* function that returns an instruction stored in little endian at a given address
+ * in the memory
+ */
 uint32_t fetchInstruction(int address) {
 	uint32_t byte4 = ARM.memory[address];
 	uint32_t byte3 = ARM.memory[address + 1] << 8;

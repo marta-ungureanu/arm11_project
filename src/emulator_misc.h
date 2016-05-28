@@ -22,6 +22,15 @@
 #define TWO_BIT_MASK 3
 #define DP_OPERAND2_MASK ((1 << 12) -1)
 #define TWENTYFOUR_BIT_MASK 0x00FFFFFF
+#define MULTIPLY_ACCUMULATOR_MASK 1 << 21
+#define MULTIPLY_CONDITION_MASK 1 << 20
+#define MUL_SD_REG_MASK1 15 << 16
+#define MUL_SD_REG_MASK2 15 << 12
+#define MUL_SD_REG_MASK3 15 << 8
+#define MUL_SD_REG_MASK4 15
+#define FLAG_Z_MASK 1 << 30
+#define FLAG_N_MASK 1 << 31
+#define NEG_NO_THAT_SHIFTS_PRINTING -999999999
 
 uint32_t fetchInstruction(int address);
 int decode(uint32_t instruction);

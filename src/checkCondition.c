@@ -1,6 +1,9 @@
 #include "emulator_misc.h"
 #include "armStructure.h"
 
+/* function that returns true if the condition field of an instruction succeeds,
+ * and false otherwise
+ */
 bool checkConditionField(uint32_t instruction) {
 
 	uint8_t condition = instruction >> 28;
