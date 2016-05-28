@@ -5,9 +5,10 @@ CFLAGS  = -Wall -g -D_POSIX_SOURCE -D_BSD_SOURCE -std=c99 -Werror -pedantic
 
 .PHONY: all clean
 
-all: emulate #assemble emulate
+all: emulate assemble
 
-assemble: assemble.o
+assemble: assemble.o instructions_table.o
+	$(CC) -o assemble assemble.o instructions_table.o
 
 emulate: emulate.o pipeline.o print.o multiply.o singleDataTransfer.o dataProcessing.o branch.o checkCondition.o
 		$(CC) -o emulate emulate.o pipeline.o print.o multiply.o singleDataTransfer.o dataProcessing.o branch.o checkCondition.o
@@ -36,7 +37,14 @@ branch.o: branch.c
 checkCondition.o: checkCondition.c
 		$(CC) $(CFLAGS) -c checkCondition.c
 
+assemble.o : assemble.c
+		$(CC) $(CFLAGS) -c assemble.c
 
+decode.o : decode.c
+		$(CC) $(CFLAGS) -c decode.c
+
+instructions_table.o : instructions_table.c
+		$(CC) $(CFLAGS) -c instructions_table.c
 
 
 

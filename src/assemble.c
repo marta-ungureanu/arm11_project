@@ -50,10 +50,6 @@ int main(int argc, char **argv) {
 			printf("%s", s[i]);
 		}
 	}
-
-
-
-
 	return EXIT_SUCCESS;
 }
 

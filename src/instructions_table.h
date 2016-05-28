@@ -3,25 +3,24 @@
 
 #define NUMBER_OF_INSTRUCTIONS 23
 
+
 struct entry{
   char instruction[5];
   int type;
   int opcode;
-};
-
-struct entry instructionSet[] =
- {{"add", 1, 4},
-  {"sub", 1, 2},
-  {"rsb", 1, 3},
-  {"and", 1, 0},
-  {"eor", 1, 1},
-  {"orr", 1, 12},
-  {"mov", 1, 13},
-  {"tst", 1, 8},
-  {"teq", 1, 9},
-  {"cmp", 1, 10},
-  {"mul", 2, 0},
-  {"mla", 2, 0},
+} instructionSet[] =
+ {{"add", 2, 4},
+  {"sub", 2, 2},
+  {"rsb", 2, 3},
+  {"and", 2, 0},
+  {"eor", 2, 1},
+  {"orr", 2, 12},
+  {"mov", 2, 13},
+  {"tst", 2, 8},
+  {"teq", 2, 9},
+  {"cmp", 2, 10},
+  {"mul", 1, 0},
+  {"mla", 1, 0},
   {"ldr", 3, 0},
   {"str", 3, 0},
   {"beq", 4, 10},
@@ -31,10 +30,11 @@ struct entry instructionSet[] =
   {"bgt", 4, 10},
   {"ble", 4, 10},
   {"b", 4, 10},
-  {"lsl", 1, 13},
-  {"andeq", 1, 0}
-  };
+  {"lsl", 2, 13},
+  {"andeq", 2, 0}
+};
 
 int getLocation(char c[]);
+void decode(char line[]);
 
-#endif /* INSTRUCTIONS_TABLE_H_ */
+#endif
