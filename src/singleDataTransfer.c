@@ -121,5 +121,4 @@ uint32_t printMessage(uint32_t address) {
 			printf(" 0x%08x\n", address);
 			return 0;
 	}
-
 }
