@@ -9,6 +9,10 @@
 #define PRINTING_MASK 1 << 31
 #define MUL_COMMON_BITS_MASK 9 << 4
 #define MUL_CONDITION_MASK 0xe << 28
+#define FOURTH_BYTE_MASK 0xff;
+#define THIRD_BYTE_MASK 0xff << 8
+#define SECOND_BYTE_MASK 0xff << 16
+#define FIRST_BYTE_MASK 0xff << 24
 
 
 struct Table {
@@ -23,5 +27,6 @@ FILE *fout;
 void decode(char line[]);
 void write(uint32_t instruction);
 void multiplyAsm(char instruction[]);
+uint32_t printInstruction(uint32_t instruction);
 
 #endif
