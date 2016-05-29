@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 
 	for(int i = 0; i < line; i++) {
 		if(!isLabel(s[i], noOfLabels)) {
-			decode(s[i]);
+			decode(s[i], 4 * i);
 		}
 	}
 	return EXIT_SUCCESS;

@@ -31,7 +31,7 @@ void decode(char line[]) {
     	//singleDataTransferAsm(instructionSet[location].opcode, restOfInstruction);
     	break;
     case 4:
-		//branchAsm(restOfInstruction);
+		//branchAsm(line);
     	//branchAsm(instructionSet[location].opcode, restOfInstruction);
     	break;
   }

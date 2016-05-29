@@ -1,15 +1,17 @@
 #include "assembler_misc.h"
 #include <stdlib.h>
 
-void branchAsm(char instruction[]) {
+void branchAsm(char instruction[], int address) {
 	uint32_t binaryInstruction = BRANCH_COMMON_BITS_MASK;
-	uint32_t condition = 0;
+	uint32_t condition = 14;
 	char instructionCopy[];
 	strcpy(instructionCopy, instruction);
 	char *saveptr;
 	char *p = strtok_r(instructionCopy, " ", &saveptr);
 	
-	if(strcmp(p, "bne") == 0) {
+	if(strcmp(p, "beq") == 0) {
+		condition = 0;
+	} else if(strcmp(p, "bne") == 0) {
 		condition = 1 << 28;
 	} else if(strcmp(p, "bge") == 0) {
 		condition = 10 << 28;
@@ -19,13 +21,11 @@ void branchAsm(char instruction[]) {
 		condition = 12 << 28;
 	} else if(strcmp(p, "ble") == 0) {
 		condition = 13 << 28;
-	} else {
-		condition = 14 << 28;
 	}
 	
-	uint32_t offset = atoi(strtok_r(NULL, " ", &saveptr));
-	
-	//how the hell do I compute the difference between the current address and the label...
+	int32_t labelAddress = getAddress(strtok_r(NULL, " ", &saveptr));
+	int32_t offset = labelAddress - address;
+	offset /= 4;
 	
 	binaryInstruction += condition + offset;
 	write(binaryInstruction);
