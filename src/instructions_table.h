@@ -5,10 +5,10 @@
 
 
 struct entry{
-  char instruction[5];
-  int type;
-  int opcode;
-} instructionSet[] =
+	char instruction[5];
+	int type;
+	int opcode;
+}instructionSet[] =
  {{"add", 2, 4},
   {"sub", 2, 2},
   {"rsb", 2, 3},
@@ -35,6 +35,5 @@ struct entry{
 };
 
 int getLocation(char c[]);
-void decode(char line[]);
 
 #endif

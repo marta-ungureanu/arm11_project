@@ -2,19 +2,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include "assembler_misc.h"
 
-struct Table {
-		char label[512];
-		int address;
-};
-
-struct Table *labelsTable;
 
 bool isLabel(char a[], int noOfLabels);
 
 int main(int argc, char **argv) {
 
-	FILE *fin, *fout;
+	FILE *fin;
 	if((fin = fopen(argv[1], "r")) == NULL) {
 		perror("Error opening file.txt!");
 		exit(EXIT_FAILURE);
@@ -47,7 +42,7 @@ int main(int argc, char **argv) {
 
 	for(int i = 0; i < line; i++) {
 		if(!isLabel(s[i], noOfLabels)) {
-			printf("%s", s[i]);
+			decode(s[i]);
 		}
 	}
 	return EXIT_SUCCESS;
