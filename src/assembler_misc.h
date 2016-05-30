@@ -44,7 +44,7 @@ FILE *fout;
 void decode(char line[], int address);
 void write(uint32_t instruction);
 void multiplyAsm(char instruction[]);
-void dataProcessingAsm(uint32_t, char instruction[]);
+void dataProcessingAsm(uint32_t opcode, char instruction[]);
 
 uint32_t encodeShiftedRegister(char instruction[], char *arg1, char *arg2);
 uint32_t encodeImmediateOperand(char value[]);
