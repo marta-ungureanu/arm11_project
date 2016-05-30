@@ -7,6 +7,9 @@ void singleDataTransferAsm(char instruction[], char type[]) {
 	char *restOfInstruction = malloc(strlen(instruction));
 	strcpy(restOfInstruction, instruction);
 	
+	
+	printf(restOfInstruction);
+	
 	uint32_t binaryInstruction = SD_COMMON_BITS_MASK;
 	uint32_t condition = SD_MUL_CONDITION_MASK;
 	uint32_t flagI = 1 << 25;
@@ -39,24 +42,26 @@ void singleDataTransferAsm(char instruction[], char type[]) {
 			return;
 		} else {
 			flagP = 1 << 24;
-			rn = 0xF << 15;
+			rn = 0xF << 16;
 			finalPrint[noOfFinalPrints] = offset;
 			noOfFinalPrints++;
-			return;
+			offset = 0;
+			flagI = 0;
 		}
 	} else if(strlen(address) == 4){ 
 		char s[1] = {address[2]};
-		rn = atoi(s) << 15;
+		rn = atoi(s) << 16;
 		flagP = 1 << 24;
+		flagI = 0;
 	} else if(address[0] == '[' && address[strlen(address) - 1] == ']') {
 		flagP = 1 << 24;
 		char s[1] = {address[2]};
-		rn = atoi(s) << 15;
+		rn = atoi(s) << 16;
 		offset = getOffset(address);
 		printf("offset is %u \n", offset);
 	} else {
 		char s[1] = {address[2]};
-		rn = atoi(s) << 15;
+		rn = atoi(s) << 16;
 		offset = getOffset(address);
 	}
 	
