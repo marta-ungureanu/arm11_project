@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
 
 
 	labelsTable = malloc(size);
+	finalPrint = malloc(size);
 	char s[size][512];
 	int line = 0;
 	int noOfLabels = 0;

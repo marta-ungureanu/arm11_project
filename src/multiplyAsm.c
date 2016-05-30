@@ -4,7 +4,7 @@
 void multiplyAsm(char instruction[]) {
 	int length = strlen(instruction);
 	uint32_t binaryInstruction = MUL_COMMON_BITS_MASK;
-	uint32_t condition = MUL_CONDITION_MASK;
+	uint32_t condition = SD_MUL_CONDITION_MASK;
 	uint32_t accumulatorBit = 0;
 	char *saveptr;
 	uint32_t rd = atoi(strtok_r(instruction, "r,", &saveptr)) << 16;
