@@ -38,6 +38,7 @@ struct Table *labelsTable;
 
 int32_t *finalPrint;
 int32_t noOfFinalPrints;
+int32_t noOfInstructions;
 
 FILE *fout;
 
@@ -54,6 +55,6 @@ uint32_t rotateRight(uint32_t immediateValue, uint32_t rotation);
 uint32_t printInstruction(uint32_t instruction);
 int32_t getAddress(char label[]);
 void branchAsm(char instruction[], int address);
-void singleDataTransferAsm(char instruction[], char type[]);
+void singleDataTransferAsm(char instruction[], char type[], int address);
 
 #endif

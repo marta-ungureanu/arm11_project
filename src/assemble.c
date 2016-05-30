@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 		}
 		addressCounter += 4;
 	}
-
+	noOfInstructions = line;
 	for(int i = 0; i < line; i++) {
 		if(!isLabel(s[i], noOfLabels)) {
 			//printf("%s\n", s[i]);
@@ -50,6 +50,8 @@ int main(int argc, char **argv) {
 
 		}
 	}
+
+
 	for(int i = 0; i < noOfFinalPrints; i++){
 		write(finalPrint[i]);
 	}

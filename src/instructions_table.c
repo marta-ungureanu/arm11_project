@@ -42,7 +42,7 @@ void decode(char line[], int address) {
     	dataProcessingAsm(instructionSet[location].opcode, restOfInstruction);
     	break;
     case 3:
-    	singleDataTransferAsm(restOfInstruction, instructionSet[location].instruction);
+    	singleDataTransferAsm(restOfInstruction, instructionSet[location].instruction, address);
     	break;
     case 4:
 			branchAsm(line, address);

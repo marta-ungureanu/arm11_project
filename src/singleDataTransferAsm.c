@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 uint32_t getOffset(char address[]);
-void singleDataTransferAsm(char instruction[], char type[]) {
+void singleDataTransferAsm(char instruction[], char type[], int pc) {
 	char *saveptr;
 	char *restOfInstruction = malloc(strlen(instruction));
 	strcpy(restOfInstruction, instruction);
@@ -26,9 +26,12 @@ void singleDataTransferAsm(char instruction[], char type[]) {
 	char immediateValue[length];
 	strcpy(immediateValue, address);
 	address[strlen(address) - 1] = '\0';
-	printf("address is:%s\n", address);
+	
 	if(strcmp(type, "str")) {
 		flagL = 1 << 20;
+	}
+	if(address[0] == ' ') {
+		strcpy(address, address + 1);
 	}
 
 	if(address[0] == '=') {
@@ -46,8 +49,10 @@ void singleDataTransferAsm(char instruction[], char type[]) {
 			flagP = 1 << 24;
 			rn = 0xF << 16;
 			finalPrint[noOfFinalPrints] = offset;
+			offset = (noOfInstructions + noOfFinalPrints) * 4 - pc - 8;
+			printf("the number's address is %d, pc is %d\n", (noOfInstructions + noOfFinalPrints) * 4, pc);
 			noOfFinalPrints++;
-			offset = encodeImmediateOperand(immediateValue);
+			//offset = encodeImmediateOperand(immediateValue);
 			printf("offset is: %u\n", offset );
 			flagI = 0;
 		}
