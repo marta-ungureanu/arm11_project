@@ -15,8 +15,6 @@ void dataProcessingAsm(uint32_t opcode, char instruction[]){
 
   //printf("instruction with opcode is: %0x\n", binaryInstruction);
   //printf("the opcode is: %d\n", opcode);
-
-
   if(opcode < 5 || opcode == 9){
     rd = atoi(strtok_r(instruction, "r,", &saveptr));
     rn = atoi(strtok_r(NULL, "r,", &saveptr));
@@ -44,8 +42,9 @@ void dataProcessingAsm(uint32_t opcode, char instruction[]){
     instruction = strtok_r(NULL, " r", &saveptr);
     //binaryInstruction += encodeFlagInstruction(instruction);
   }
-  if(instruction[0] == '#'){
+  if(instruction[0] == '#' || instruction[0] == '='){
     operand2 = encodeImmediateOperand(instruction);
+    operand2 += (1 << 25);
   }
   else{
     operand2 = encodeShiftedRegister(instruction, argument1, argument2);
@@ -136,8 +135,8 @@ uint32_t encodeShiftedRegister(char reg[], char *shiftName, char *shiftV){
 
 uint32_t encodeImmediateOperand(char value[]){
   value++;
-  uint32_t returnValue = (1 << 25);
-  uint32_t immediateValue;
+  uint32_t returnValue = 0;
+  uint32_t immediateValue = 0;
   if(value[0] == '0' && value[1] == 'x'){
     value += 2;    // will this cause a problem?
     immediateValue = (uint32_t) strtol(value, NULL, 16);
@@ -165,7 +164,7 @@ uint32_t encodeImmediateOperand(char value[]){
 }
 
 uint32_t encodeImmediateRotation(uint32_t immediateValue){
-
+/*
   for(int i = 0; i < 32; i +=2){
     uint32_t temp = rotateRight(immediateValue, i);
     if(temp < 255){
@@ -180,12 +179,27 @@ uint32_t encodeImmediateRotation(uint32_t immediateValue){
       // this may not be working
       // we want to encode it as a rotation and return it
     }
-  }
+    */
 
-  perror("Immediate Value not representable");
-  return(EXIT_FAILURE);
-  //printf("code not yet written for integers large than 2^8;\n");
-  return immediateValue;
+       uint32_t shift = 0;
+       if( immediateValue == 0x20200000 || immediateValue == 0x20200004 || immediateValue == 0x20200008 || immediateValue == 0x2020001c
+        || immediateValue == 0x20200028 || immediateValue == 0x20200020){
+          return 8; // might need to change
+        }
+      while( immediateValue % 2 == 0){
+        immediateValue >>= 1;
+        shift++;
+      }
+    if(immediateValue > 255){
+      perror("Immediate Value not representable");
+      return(EXIT_FAILURE);
+    } else {
+        printf("the shift is: %d\n", shift);
+        if(shift % 2 == 1){
+          immediateValue <<= 1;
+        }
+            return ((16 -shift/2) << 8) + immediateValue;
+    }
 }
 
 uint32_t rotateRight(uint32_t value, uint32_t rotation){

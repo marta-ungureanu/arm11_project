@@ -50,6 +50,9 @@ int main(int argc, char **argv) {
 
 		}
 	}
+	for(int i = 0; i < noOfFinalPrints; i++){
+		write(finalPrint[i]);
+	}
 	return EXIT_SUCCESS;
 }
 

@@ -32,6 +32,9 @@ void decode(char line[], int address) {
 	int code = instructionSet[location].type;
 
 	switch (code){
+		case 0:
+			write(0);
+			break;
 		case 1:
 			multiplyAsm(restOfInstruction);
 		break;

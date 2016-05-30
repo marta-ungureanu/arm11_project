@@ -32,7 +32,7 @@ struct entry{
   {"ble", 4, 10},
   {"b", 4, 10},
   {"lsl", 2, 13},
-  {"andeq", 2, 0}
+  {"andeq", 0, 0}
 };
 
 int32_t getLocation(char c[]);
