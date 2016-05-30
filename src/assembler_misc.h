@@ -26,10 +26,11 @@ struct Table *labelsTable;
 
 FILE *fout;
 
-void decode(char line[], int i);
+void decode(char line[], int address);
 void write(uint32_t instruction);
 void multiplyAsm(char instruction[]);
 uint32_t printInstruction(uint32_t instruction);
 int32_t getAddress(char label[]);
+void branchAsm(char instruction[], int address);
 
 #endif

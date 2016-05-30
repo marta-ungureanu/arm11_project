@@ -11,7 +11,15 @@ int getLocation(char c[]){
 	return -1;
 }
 
-void decode(char line[]) {
+int32_t getAddress(char label[]) {
+	int i = 0;
+	while(strcmp(labelsTable[i].label, label) != 0) {
+		i++;
+	}
+	return labelsTable[i].address;
+}
+
+void decode(char line[], int address) {
 	char temp[strlen(line)];
 	strcpy(temp, line);
 	char *saveptr;
@@ -31,7 +39,7 @@ void decode(char line[]) {
     	//singleDataTransferAsm(instructionSet[location].opcode, restOfInstruction);
     	break;
     case 4:
-		//branchAsm(line);
+		branchAsm(line, address);
     	//branchAsm(instructionSet[location].opcode, restOfInstruction);
     	break;
   }
