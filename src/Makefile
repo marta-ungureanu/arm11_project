@@ -7,8 +7,8 @@ CFLAGS  = -Wall -g -D_POSIX_SOURCE -D_BSD_SOURCE -std=c99 -Werror -pedantic
 
 all: emulate assemble
 
-assemble: assemble.o instructions_table.o branchAsm.o multiplyAsm.o printBinary.o
-	$(CC) -o assemble assemble.o instructions_table.o branchAsm.o multiplyAsm.o printBinary.o
+assemble: assemble.o instructions_table.o branchAsm.o multiplyAsm.o printBinary.o singleDataTransferAsm.o
+	$(CC) -o assemble assemble.o instructions_table.o branchAsm.o multiplyAsm.o printBinary.o singleDataTransferAsm.o
 
 emulate: emulate.o pipeline.o print.o multiply.o singleDataTransfer.o dataProcessing.o branch.o checkCondition.o
 		$(CC) -o emulate emulate.o pipeline.o print.o multiply.o singleDataTransfer.o dataProcessing.o branch.o checkCondition.o
@@ -54,6 +54,9 @@ multiply.o: multiplyAsm.c
 
 printBinary.o : printBinary.c
 		$(CC) $(CFLAGS) -c printBinary.c
+
+singleDataTransferAsm.o : singleDataTransferAsm.c
+				$(CC) $(CFLAGS) -c singleDataTransferAsm.c
 
 
 
