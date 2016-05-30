@@ -34,6 +34,6 @@ struct entry{
   {"andeq", 2, 0}
 };
 
-int getLocation(char c[]);
+int32_t getLocation(char c[]);
 
 #endif
