@@ -8,8 +8,8 @@ void dataProcessingAsm(uint32_t opcode, char instruction[]){
   uint32_t rn = 0;
   uint32_t operand2 = 0;
   char *saveptr;
-  char* argument1;
-  char* argument2;
+  char* argument1 = NULL;
+  char* argument2 = NULL;
   binaryInstruction += (opcode << 21);
 
 
@@ -41,7 +41,7 @@ void dataProcessingAsm(uint32_t opcode, char instruction[]){
   else {
     binaryInstruction += (1 << 20);
     rn = atoi(strtok_r(instruction, "r,", &saveptr));
-    instruction = strtok_r(NULL, " ", &saveptr);
+    instruction = strtok_r(NULL, " r", &saveptr);
     //binaryInstruction += encodeFlagInstruction(instruction);
   }
   if(instruction[0] == '#'){
@@ -52,7 +52,7 @@ void dataProcessingAsm(uint32_t opcode, char instruction[]){
   }
     binaryInstruction = binaryInstruction + (rd <<12) + (rn << 16) + operand2;
     write(binaryInstruction);
-  //printf( "The resulting instruction is: %0x\n\n", binaryInstruction );
+  printf( "The resulting instruction is: %0x\n\n", binaryInstruction );
 }
 
 uint32_t encodeShiftedRegister(char reg[], char *shiftName, char *shiftV){
@@ -60,8 +60,13 @@ uint32_t encodeShiftedRegister(char reg[], char *shiftName, char *shiftV){
   uint32_t shiftType = 0;
   uint32_t shiftValue = 0;
   uint32_t rType = 0;
+  printf("reg is %s\n", reg);
   char *saveptr;
   rm = atoi(reg);
+  printf("rm is: %d\n", rm);
+  //printf("%s\n", shiftName);
+  //printf("%s\n", shiftV);
+  //exit(EXIT_SUCCESS);
   if(shiftV != NULL){
     rType = 1;
     printf("shiftName is:%s.", shiftName);
@@ -84,6 +89,10 @@ uint32_t encodeShiftedRegister(char reg[], char *shiftName, char *shiftV){
       //printf("shiftValue is: %d\n", shiftValue);
       //shiftValue = (shiftValue << 1);
     }
+  }
+
+  else{
+        //exit(EXIT_SUCCESS);
   }
   //printf("the value of rm is: %d\n", rm);
   //printf("shiftType is: %d\n", shiftType);
