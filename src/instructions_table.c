@@ -1,6 +1,7 @@
 #include "instructions_table.h"
 #include <string.h>
 #include "assembler_misc.h"
+#include <stdint.h>
 
 int getLocation(char c[]){
 	for(int i = 0; i < NUMBER_OF_INSTRUCTIONS; i++){
@@ -33,7 +34,7 @@ void decode(char line[], int address) {
 		multiplyAsm(restOfInstruction);
 		break;
     case 2:
-    	//dataProcessingAsm(instructionSet[location].opcode, restOfInstruction);
+    	dataProcessingAsm(instructionSet[location].opcode, restOfInstruction);
     	break;
     case 3:
     	singleDataTransferAsm(restOfInstruction, instructionSet[location].instruction);

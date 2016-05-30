@@ -1,5 +1,6 @@
 #ifndef INSTRUCTIONS_TABLE_H_
 #define INSTRUCTIONS_TABLE_H_
+#include<stdint.h>
 
 #define NUMBER_OF_INSTRUCTIONS 23
 
