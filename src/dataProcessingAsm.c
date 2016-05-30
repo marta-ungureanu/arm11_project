@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 void dataProcessingAsm(uint32_t opcode, char instruction[]){
+  //printf("are we here?");
   uint32_t binaryInstruction = DP_COMMON_BITS_MASK;
   uint32_t rd = 0;
   uint32_t rn = 0;
@@ -10,6 +11,7 @@ void dataProcessingAsm(uint32_t opcode, char instruction[]){
   char* argument1;
   char* argument2;
   binaryInstruction += (opcode << 21);
+
 
   //printf("instruction with opcode is: %0x\n", binaryInstruction);
   //printf("the opcode is: %d\n", opcode);
@@ -20,11 +22,11 @@ void dataProcessingAsm(uint32_t opcode, char instruction[]){
     rn = atoi(strtok_r(NULL, "r,", &saveptr));
   //  printf("whole thing is %s", saveptr);
     instruction = strtok_r(NULL, " r", &saveptr);
+
     if(saveptr != NULL){
     argument1 = strtok_r(NULL, " ", &saveptr);
     argument2 = strtok_r(NULL, " ", &saveptr);
     }
-
   //  printf("instruction is: %s\n", instruction);
   //  printf("argument1 is: %s\n", argument1);
   //  printf("argument2 is: %s\n", argument2);
@@ -60,11 +62,11 @@ uint32_t encodeShiftedRegister(char reg[], char *shiftName, char *shiftV){
   uint32_t rType = 0;
   char *saveptr;
   rm = atoi(reg);
-  if(shiftV == NULL){
+  if(shiftV != NULL){
     rType = 1;
     printf("shiftName is:%s.", shiftName);
     if(strcmp(shiftName, "lsl") == 0){
-      //printf("are we here?");
+      printf("are we here?");
       shiftType = 0;
     } else if (strcmp(shiftName, "lsr") == 0){
       shiftType = 1;

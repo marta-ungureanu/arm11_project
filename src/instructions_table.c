@@ -2,6 +2,7 @@
 #include <string.h>
 #include "assembler_misc.h"
 #include <stdint.h>
+#include <stdlib.h>
 
 int getLocation(char c[]){
 	for(int i = 0; i < NUMBER_OF_INSTRUCTIONS; i++){
@@ -21,6 +22,7 @@ int32_t getAddress(char label[]) {
 }
 
 void decode(char line[], int address) {
+
 	char temp[strlen(line)];
 	strcpy(temp, line);
 	char *saveptr;
@@ -30,8 +32,8 @@ void decode(char line[], int address) {
 	int code = instructionSet[location].type;
 
 	switch (code){
-	case 1:
-		multiplyAsm(restOfInstruction);
+		case 1:
+			multiplyAsm(restOfInstruction);
 		break;
     case 2:
     	dataProcessingAsm(instructionSet[location].opcode, restOfInstruction);
@@ -40,8 +42,7 @@ void decode(char line[], int address) {
     	singleDataTransferAsm(restOfInstruction, instructionSet[location].instruction);
     	break;
     case 4:
-		branchAsm(line, address);
-    	//branchAsm(instructionSet[location].opcode, restOfInstruction);
+			branchAsm(line, address);
     	break;
   }
 }

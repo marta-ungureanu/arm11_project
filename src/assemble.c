@@ -44,7 +44,10 @@ int main(int argc, char **argv) {
 
 	for(int i = 0; i < line; i++) {
 		if(!isLabel(s[i], noOfLabels)) {
+			//printf("%s\n", s[i]);
+			//printf("%d\n", 4 *i);
 			decode(s[i], 4 * i);
+
 		}
 	}
 	return EXIT_SUCCESS;
