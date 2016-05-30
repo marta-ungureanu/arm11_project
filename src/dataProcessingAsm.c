@@ -35,7 +35,7 @@ void dataProcessingAsm(uint32_t opcode, char instruction[]){
   }
   else if (opcode == 13){
     rd = atoi(strtok_r(instruction, "r,", &saveptr));
-    instruction = strtok_r(NULL, " ", &saveptr);
+    instruction = strtok_r(NULL, " r", &saveptr);
     //binaryInstruction += encodeMovInstruction(instruction);
   }
   else {
