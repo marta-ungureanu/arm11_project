@@ -17,6 +17,13 @@
 #define FIRST_BYTE_MASK 0xff << 24
 
 #define BRANCH_COMMON_BITS_MASK 10 << 24
+#define BRANCH_BAL_MASK 14 << 28
+#define BRANCH_BEQ_MASK 0
+#define BRANCH_BNE_MASK 1 << 28
+#define BRANCH_BGE_MASK 10 << 28
+#define BRANCH_BLT_MASK 11 << 28
+#define BRANCH_BGT_MASK 12 << 28
+#define BRANCH_BLE_MASK 13 << 28
 
 
 struct Table {
