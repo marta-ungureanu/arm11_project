@@ -2,15 +2,7 @@
 
 void write(uint32_t instruction) {
 	instruction = printInstruction(instruction);
-	for(int i = 0; i < PRINTING_INSTRUCTION_SIZE; i++) {
-		if((instruction & PRINTING_MASK) == 0){
-			fprintf(fout, "0");
-		}
-		else {
-			fprintf(fout, "1");
-		}
-		instruction <<= 1;
-	}
+	fwrite(&instruction, 4, 1, fout);
 }
 
 uint32_t printInstruction(uint32_t instruction) {
