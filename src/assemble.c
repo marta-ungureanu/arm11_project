@@ -38,8 +38,8 @@ int main(int argc, char **argv) {
 			noOfLabels ++;
 		} else if(s[line][0] != '\n'){
 			line++;
+			addressCounter += 4;
 		}
-		addressCounter += 4;
 	}
 	noOfInstructions = line;
 	for(int i = 0; i < line; i++) {
