@@ -21,10 +21,7 @@ void singleDataTransferAsm(char instruction[], char type[], int pc) {
 
 	char address[length];
 	strcpy(address, saveptr);
-	char immediateValue[length];
-	strcpy(immediateValue, address);
 	address[strlen(address) - 1] = '\0';
-
 
 	if(strcmp(type, "str")) {
 		flagL = 1 << 20;
@@ -74,6 +71,9 @@ void singleDataTransferAsm(char instruction[], char type[], int pc) {
 		char s[1] = {address[2]};
 		rn = atoi(s) << 16;
 		offset = getOffset(address);
+		if(!shift) {
+			flagI = 0;
+		}
 	}
 
 
@@ -85,14 +85,30 @@ void singleDataTransferAsm(char instruction[], char type[], int pc) {
 	printf("rn is %0x \n", rn >> 15);
 	printf("rd is %0x \n", rd);*/
 	binaryInstruction += condition + flagI + flagP + flagU + flagL + rn + rd + offset;
-	//printf("%x \n", binaryInstruction);
+	printf("%x \n", binaryInstruction);
 	write(binaryInstruction);
 }
 
 uint32_t getOffset(char address[]) {
 	char expression[strlen(address)];
 	char *ptr;
-	if(strchr(address, '#')) {
+	if(strstr(address, "lsr")) {
+		printf("Here\n");
+		char temp[strlen(address)];
+		strcpy(temp, address);
+		strtok_r(address, "r", &ptr);
+		strtok_r(NULL, "r", &ptr);
+		strcpy(address, ptr);
+		char reg[] = {address[0]};
+		int i = 0;
+		while(temp[i] != '#') {
+			strcpy(temp, temp + 1);
+		}
+		char *shiftName = "lsr";
+		printf("Reg is %s shiftName is %s temp is %s \n", reg, shiftName, temp);
+		shift = 1;
+		return encodeShiftedRegister(reg, shiftName, temp);
+	} else if(strchr(address, '#')) {
 		strcpy(expression, strtok_r(address, "#", &ptr));
 		strcpy(expression, ptr);
 
