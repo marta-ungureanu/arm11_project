@@ -33,6 +33,9 @@
 #define FLAG_N_MASK 1 << 31
 #define NEG_NO_THAT_SHIFTS_PRINTING -999999999
 
+#define LEFT_SHIFT(uint32_t, i) (uint32_t << i)
+#define RIGHT_SHIFT(uint32_t, i) (uint32_t >> i)
+
 void pipeline(void);
 void execute(int code, uint32_t instruction);
 int32_t decode(uint32_t instruction);
