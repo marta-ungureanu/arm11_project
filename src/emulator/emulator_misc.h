@@ -5,6 +5,18 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#define SIZE_OF_MEMORY 65536
+#define NUMBER_OF_REGISTERS 17
+#define PC 15
+#define CPSR 16
+
+struct State {
+	uint8_t memory[SIZE_OF_MEMORY];
+	int32_t registers[NUMBER_OF_REGISTERS];
+};
+
+struct State ARM;
+
 #define BLOCK_SIZE 1
 #define DATA_PROCESSING_MASK 12 << 24
 #define MULTIPLY_MASK 264241248
@@ -16,18 +28,47 @@
 #define TWO_BIT_MASK 3
 #define DP_OPERAND2_MASK ((1 << 12) -1)
 #define TWENTYFOUR_BIT_MASK 0x00FFFFFF
+
 #define MULTIPLY_ACCUMULATOR_MASK 1 << 21
 #define MULTIPLY_CONDITION_MASK 1 << 20
 #define MUL_SD_REG_MASK1 15 << 16
 #define MUL_SD_REG_MASK2 15 << 12
 #define MUL_SD_REG_MASK3 15 << 8
 #define MUL_SD_REG_MASK4 15
+#define MUL_ACC_BIT_SHIFT 21
+#define MUL_COND_BIT_SHIFT 20
+#define MUL_REG_SHIFT1 16
+#define MUL_REG_SHIFT2 12
+#define MUL_REG_SHIFT3 8
+
 #define FLAG_Z_MASK 1 << 30
 #define FLAG_N_MASK 1 << 31
 #define NEG_NO_THAT_SHIFTS_PRINTING -999999999
 #define BRANCH_OFFSET_SHIFT 8
 #define SIGNBIT_MASK (-1) << 26
 #define INSTRUCTION_SIZE 4
+
+#define STOP 0
+#define MULTIPLY 1
+#define DATA_PROCESSING 2
+#define SINGLE_DATA_TRANSFER 3
+#define BRANCH 4
+#define UNDEFINED -1
+
+#define BYTE1_SHIFT 24
+#define BYTE2_SHIFT 16
+#define BYTE3_SHIFT 8
+
+#define EQUAL 0
+#define NOT_EQUAL 1
+#define GREATER_OR_EQUAL 10
+#define LESS_THAN 11
+#define GREATER_THAN 12
+#define LESS_THAN_OR_EQUAL 13
+#define ALWAYS 14
+
+#define BIT_SET 1
+#define BIT_NOT_SET 0
 
 
 void pipeline(void);

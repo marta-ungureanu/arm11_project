@@ -1,6 +1,5 @@
 #include <limits.h>
 #include "emulator_misc.h"
-#include "armStructure.h"
 
 /* function that determines which Data Processing instruction to execute
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

@@ -1,5 +1,12 @@
+/* ARM Project 2016
+ *
+ * branch.c contains the function that executes a branch instruction
+ *
+ * Group 3
+ * Members: abp14, oc1115, mu515, mz4715
+ */
+
 #include "emulator_misc.h"
-#include "armStructure.h"
 
 /* Function that executes a branch instruction
  * 

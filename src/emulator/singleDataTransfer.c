@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include "emulator_misc.h"
-#include "armStructure.h"
 
 /* function that executes the single data transfer instructions
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
