@@ -1,10 +1,3 @@
-/*
- * emulator_functions.h
- *
- *  Created on: 27 May 2016
- *      Author: marta
- */
-
 #ifndef EMULATOR_FUNCTIONS_H_
 #define EMULATOR_FUNCTIONS_H_
 
@@ -32,9 +25,10 @@
 #define FLAG_Z_MASK 1 << 30
 #define FLAG_N_MASK 1 << 31
 #define NEG_NO_THAT_SHIFTS_PRINTING -999999999
+#define BRANCH_OFFSET_SHIFT 8
+#define SIGNBIT_MASK (-1) << 26
+#define INSTRUCTION_SIZE 4
 
-#define LEFT_SHIFT(uint32_t, i) (uint32_t << i)
-#define RIGHT_SHIFT(uint32_t, i) (uint32_t >> i)
 
 void pipeline(void);
 void execute(int code, uint32_t instruction);
