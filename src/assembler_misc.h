@@ -39,7 +39,7 @@ struct Table *labelsTable;
 int32_t *finalPrint;
 int32_t noOfFinalPrints;
 int32_t noOfInstructions;
-
+uint32_t flagU;
 FILE *fout;
 
 void decode(char line[], int address);
