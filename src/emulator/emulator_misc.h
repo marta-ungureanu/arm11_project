@@ -22,12 +22,30 @@
 #define MUL_SD_REG_MASK2 15 << 12
 #define MUL_SD_REG_MASK3 15 << 8
 #define MUL_SD_REG_MASK4 15
+#define OFFSET_MASK 0xFFF
 #define FLAG_Z_MASK 1 << 30
 #define FLAG_N_MASK 1 << 31
 #define NEG_NO_THAT_SHIFTS_PRINTING -999999999
 #define BRANCH_OFFSET_SHIFT 8
 #define SIGNBIT_MASK (-1) << 26
 #define INSTRUCTION_SIZE 4
+
+
+#define ONE_BYTE_SHIFT 8
+#define TWO_BYTES_SHIFT 16
+#define THREE_BYTES_SHIFT 24
+#define ONE_BYTE 1
+#define TWO_BYTES 2
+#define THREE_BYTES 3
+#define NEGATIVE_SIGN -1
+#define POSITIVE_SIGN 1
+#define FLAG_I_SHIFT 25
+#define FLAG_P_SHIFT 24
+#define FLAG_U_SHIFT 23
+#define FLAG_L_SHIFT 20
+#define RN_SHIFT 16
+#define RD_SHIFT 12
+#define LAST_TWO_BITS 3
 
 
 void pipeline(void);

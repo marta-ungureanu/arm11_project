@@ -1,16 +1,29 @@
+/* ARM Project 2016
+ *
+ * multiply.c contains the function that executes a multiply instruction
+ *
+ * Group 3
+ * Members: abp14, oc1115, mu515, mz4715
+ */
+
 #include <stdlib.h>
 #include "emulator_misc.h"
 #include "armStructure.h"
 
-/* function that executes the single data transfer instructions
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* Function that executes the single data transfer instructions
+ *
+ * PARAM: uint32_t instruction
+ * 32 bit binary representation of the instruction to be executed
+ *
+ * RETURN: void
+ * 
  * if the flagI is set then Offset is interpreted as a shifted register taking 
  * into account that a post-indexing load or store in which Rm is the same 
  * register as Rn is not allowed
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * 
  * if flagU is set, the offset is added to the base register, otherwise 
  * is subtracted
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
  * if flagP is set the offset is added/subtracted to the base register before 
  * transferring the data, otherwise the offset is added/subtracted to the base 
  * register after transferring.
@@ -21,27 +34,27 @@ void singleDataTransfer(uint32_t instruction) {
 		return;
 	}
 
-	uint32_t flagL = (instruction >> 20) % 2;
-	uint32_t flagU = (instruction >> 23) % 2;
-	uint32_t flagP = (instruction >> 24) % 2;
-	uint32_t flagI = (instruction >> 25) % 2;
-	uint32_t rn = (instruction & MUL_SD_REG_MASK1) >> 16;
-	uint32_t rd = (instruction & MUL_SD_REG_MASK2) >> 12;
-	uint32_t offset = instruction & 0xfff;
+	uint32_t flagL = (instruction >> FLAG_L_SHIFT) % 2;
+	uint32_t flagU = (instruction >> FLAG_U_SHIFT) % 2;
+	uint32_t flagP = (instruction >> FLAG_P_SHIFT) % 2;
+	uint32_t flagI = (instruction >> FLAG_I_SHIFT) % 2;
+	uint32_t rn = (instruction & MUL_SD_REG_MASK1) >> RN_SHIFT;
+	uint32_t rd = (instruction & MUL_SD_REG_MASK2) >> RD_SHIFT;
+	uint32_t offset = instruction & OFFSET_MASK;
 	uint32_t address = ARM.registers[rn];
-	int32_t sign = -1;
+	int32_t sign = NEGATIVE_SIGN;
 
 	if(flagI) {
-
 		if(!flagP && ((offset & MUL_SD_REG_MASK4) == rn)) {
 			perror("Operation not allowed!");
 			exit(EXIT_FAILURE);
 		}
-		offset = DPShift(offset, ((offset >> 1) & 3), instruction);
+		offset = DPShift(offset, ((offset >> 1) & LAST_TWO_BITS), 
+				instruction);
 	}
 
 	if(flagU) {
-		sign = 1;
+		sign = POSITIVE_SIGN;
 	}
 
 	if(flagP) {
@@ -51,20 +64,25 @@ void singleDataTransfer(uint32_t instruction) {
 		load_store(rd, address, flagL);
 		ARM.registers[rn] += sign * offset;
 	}
-
 }
 
-/* function that load or store 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/* function that load or store  
+ *
+ * PARAM: uint32_t rd, uint32_t address, uint32_t flag
+ * rd      : 32 bit binary representations of the Rd (register destination)
+ * address : the address in the memory
+ * flagL   : load/store 
+ *
+ * RETURN: void
+ * 
  * if flagU is set, the word is loaded from memory, otherwise the word is stored
  * into memory
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * 
  * if the address is out of bounds it will print a message accordingly
  */
 void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
-
 	if (flagL) {
-		if (address < (SIZE_OF_MEMORY - 3)) {
+		if (address + THREE_BYTES < SIZE_OF_MEMORY) {
 			ARM.registers[rd] = fetchInstruction(address);
 		} else {
 			uint32_t status = printMessage(address);
@@ -76,26 +94,32 @@ void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
 	} else {
 		uint32_t registerContent = ARM.registers[rd];
 		uint32_t byte4 = registerContent & EIGHT_BIT_MASK;
-		uint32_t byte3 = (registerContent & (EIGHT_BIT_MASK << 8)) 
-				  >> 8;
-		uint32_t byte2 = (registerContent & (EIGHT_BIT_MASK << 16)) 
-				  >> 16;
-		uint32_t byte1 = (registerContent & (EIGHT_BIT_MASK << 24)) 
-				  >> 24;
+		uint32_t byte3 = (registerContent & (EIGHT_BIT_MASK << 
+				 ONE_BYTE_SHIFT)) >> ONE_BYTE_SHIFT;
+		uint32_t byte2 = (registerContent & (EIGHT_BIT_MASK << 
+				 TWO_BYTES_SHIFT)) >> TWO_BYTES_SHIFT;
+		uint32_t byte1 = (registerContent & (EIGHT_BIT_MASK << 
+				 THREE_BYTES_SHIFT)) >> THREE_BYTES_SHIFT;
 
-		if(address + 3 < SIZE_OF_MEMORY){
+		if(address + THREE_BYTES < SIZE_OF_MEMORY){
 			ARM.memory[address] = byte4;
-			ARM.memory[address + 1] = byte3;
-			ARM.memory[address + 2] = byte2;
-			ARM.memory[address + 3] = byte1;
+			ARM.memory[address + ONE_BYTE] = byte3;
+			ARM.memory[address + TWO_BYTES] = byte2;
+			ARM.memory[address + THREE_BYTES] = byte1;
 		} else {
 			printMessage(address);
 		}
 	}
 }
 
-/* function that prints a message when the address is out of bounds taking into 
+/* Function that prints a message when the address is out of bounds taking into 
  * consideration particular cases related to pins
+ *
+ * PARAM: uint32_t address
+ * 32 bit binary representation of the out of bounds address
+ *
+ * RETURN: uint32_t
+ * 
  */
 uint32_t printMessage(uint32_t address) {
 	switch(address) {
