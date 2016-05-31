@@ -133,7 +133,7 @@ uint32_t encodeImmediateOperand(char value[]){
   if(value[0] == '0' && value[1] == 'x'){
     value += 2;    // will this cause a problem?
     immediateValue = (uint32_t) strtol(value, NULL, 16);
-    if(immediateValue > (1 << 8)){
+    if(immediateValue >= (1 << 8)){
       //printf("are we entering this case?");
       returnValue += encodeImmediateRotation(immediateValue);
     }
@@ -145,7 +145,8 @@ uint32_t encodeImmediateOperand(char value[]){
   else{
     immediateValue = (uint32_t) strtol(value, NULL, 10);
   //  printf("adter strol the value is: %0x\n", immediateValue);
-    if(immediateValue > (1 << 8)){
+    if(immediateValue >= (1 << 8)){
+      printf("are we entering this case?");
       returnValue += encodeImmediateRotation(immediateValue);
     }
     else {
@@ -157,23 +158,6 @@ uint32_t encodeImmediateOperand(char value[]){
 }
 
 uint32_t encodeImmediateRotation(uint32_t immediateValue){
-/*
-  for(int i = 0; i < 32; i +=2){
-    uint32_t temp = rotateRight(immediateValue, i);
-    if(temp < 255){
-      while(temp % 2 == 0){
-        temp = rotateRight(temp, 2);
-        i+=2;
-      }
-      //printf("returned value from rotateRight is %0x\n", temp);
-      //printf("encoded rotation is: %0x\n", (temp) + ((i/2) << 8));
-      //printf("i value is: %d\n", i);
-      return temp + ((i/2) << 8);
-      // this may not be working
-      // we want to encode it as a rotation and return it
-    }
-    */
-
        uint32_t shift = 0;
        if( immediateValue == 0x20200000 || immediateValue == 0x20200004 || immediateValue == 0x20200008 || immediateValue == 0x2020001c
         || immediateValue == 0x20200028 || immediateValue == 0x20200020){
@@ -183,16 +167,16 @@ uint32_t encodeImmediateRotation(uint32_t immediateValue){
         immediateValue >>= 1;
         shift++;
       }
-    if(immediateValue > 255){
-      perror("Immediate Value not representable");
-      return(EXIT_FAILURE);
-    } else {
-        //printf("the shift is: %d\n", shift);
+      if(immediateValue > 255){
+        perror("Immediate Value not representable");
+        return(EXIT_FAILURE);
+      } else {
+        printf("the shift is: %d\n", shift);
         if(shift % 2 == 1){
           immediateValue <<= 1;
         }
-            return ((16 -shift/2) << 8) + immediateValue;
-    }
+        return ((16 -shift/2) << 8) + immediateValue;
+      }
 }
 
 uint32_t rotateRight(uint32_t value, uint32_t rotation){
