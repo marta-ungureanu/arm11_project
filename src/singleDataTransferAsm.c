@@ -94,7 +94,9 @@ uint32_t getOffset(char address[]) {
 	if(strchr(address, '#')) {
 	strcpy(expression, strtok_r(address, "#", &ptr));
 	strcpy(expression, ptr);
-	expression[strlen(expression) - 1] = '\0';
+	
+	printf("Expression is: %s \n", expression);
+	//expression[strlen(expression) - 1] = '\0';
 	} else {
 		shift = 1;
 		strcpy(expression, strtok_r(address, ",", &ptr));
@@ -106,7 +108,6 @@ uint32_t getOffset(char address[]) {
 		char s[1] = {expression[1]};
 		return atoi(s);
 	}
-	//printf("Expression is: %s \n", expression);
 	if(strchr(expression, 'x') && !strchr(expression, '-')) {
 		return (uint32_t)strtol(expression, NULL, 16);
 	} else if(strchr(expression, 'x')){ 
