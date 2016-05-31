@@ -26,7 +26,6 @@ void branchAsm(char instruction[], int address) {
 	int32_t offset = labelAddress - address;
 	offset /= 4;
 	offset -= 2;
-	printf("labelAddress = %d, address = %d\n", labelAddress, address);
 	if(offset < 0) {
 		offset -= 0xff << 24;
 	}
