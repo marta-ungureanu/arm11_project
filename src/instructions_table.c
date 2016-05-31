@@ -26,11 +26,24 @@ void decode(char line[], int address) {
 	char temp[strlen(line)];
 	strcpy(temp, line);
 	char *saveptr;
+	printf("temp is: %s\n", temp);
+
+	while(temp[0] == ' ' || temp[0] == '\n' || temp[0] == '\t'){
+		//p = strtok_r(NULL, " ", &saveptr);
+		strcpy(temp, temp+1);
+		//printf("p is: %s\n", p);
+
+	}
+	if(strlen(temp) == 0){
+		return;
+	}
 	char *p = strtok_r(temp, " ", &saveptr);
+						//exit(EXIT_SUCCESS);
+	printf("instruction is: %s\n", p);
 	int location = getLocation(p);
 	char *restOfInstruction = line + strlen(p) + 1;
 	int code = instructionSet[location].type;
-
+	printf("the code is %d\n", code);
 	switch (code){
 		case 0:
 			write(0);

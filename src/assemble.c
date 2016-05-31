@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
 			strcpy(labelsTable[noOfLabels].label, s[line]);
 			labelsTable[noOfLabels].address = addressCounter;
 			noOfLabels ++;
-		} else {
+		} else if(s[line][0] != '\n'){
 			line++;
 		}
 		addressCounter += 4;

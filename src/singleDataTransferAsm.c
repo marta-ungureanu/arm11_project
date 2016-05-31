@@ -24,8 +24,8 @@ void singleDataTransferAsm(char instruction[], char type[], int pc) {
 	char immediateValue[length];
 	strcpy(immediateValue, address);
 	address[strlen(address) - 1] = '\0';
-	
-	
+
+
 	if(strcmp(type, "str")) {
 		flagL = 1 << 20;
 	}
@@ -94,7 +94,7 @@ uint32_t getOffset(char address[]) {
 	if(strchr(address, '#')) {
 	strcpy(expression, strtok_r(address, "#", &ptr));
 	strcpy(expression, ptr);
-	
+
 	printf("Expression is: %s \n", expression);
 	//expression[strlen(expression) - 1] = '\0';
 	} else {
@@ -110,7 +110,7 @@ uint32_t getOffset(char address[]) {
 	}
 	if(strchr(expression, 'x') && !strchr(expression, '-')) {
 		return (uint32_t)strtol(expression, NULL, 16);
-	} else if(strchr(expression, 'x')){ 
+	} else if(strchr(expression, 'x')){
 		strcpy(expression, expression + 1);
 		flagU = 0;
 		return (uint32_t)strtol(expression, NULL, 16);
