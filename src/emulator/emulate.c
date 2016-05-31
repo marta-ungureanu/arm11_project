@@ -1,13 +1,17 @@
+/* ARM Project 2016
+ *
+ * emulate.c contains the main function for emulator
+ *
+ * Group 3
+ * Members: abp14, oc1115, mu515, mz4715
+ */
+
 #include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
 #include <limits.h>
-#include "armStructure.h"
 #include "emulator_misc.h"
 
-/* reads binary instructions from a file and executes them 
- * using a pipeline
+/* Function that reads binary instructions from a file and executes them using
+ * a pipeline
  */
 int main(int argc, char **argv) {
 	FILE *fin;
