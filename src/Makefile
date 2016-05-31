@@ -7,7 +7,7 @@ CFLAGS  = -Wall -g -D_POSIX_SOURCE -D_BSD_SOURCE -std=c99 -Werror -pedantic
 
 all: emulate assemble
 
-assemble: assemble.o instructions_table.o branchAsm.o multiplyAsm.o printBinary.o singleDataTransferAsm.o dataProcessingAsm.o
+assemble: assemble.o instructions_table.o branchAsm.o multiplyAsm.o printBinary.o singleDataTransferAsm.o dataProcessingAsm.o instructions_table.h
 	$(CC) -o assemble assemble.o instructions_table.o branchAsm.o multiplyAsm.o printBinary.o singleDataTransferAsm.o dataProcessingAsm.o
 
 emulate: emulate.o pipeline.o print.o multiply.o singleDataTransfer.o dataProcessing.o branch.o checkCondition.o
