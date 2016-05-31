@@ -1,20 +1,18 @@
 #include "assembler_misc.h"
 
 #include <stdlib.h>
+uint32_t shift = 0;
 uint32_t getOffset(char address[]);
 void singleDataTransferAsm(char instruction[], char type[], int pc) {
 	char *saveptr;
 	char *restOfInstruction = malloc(strlen(instruction));
 	strcpy(restOfInstruction, instruction);
 
-
-
-
 	uint32_t binaryInstruction = SD_COMMON_BITS_MASK;
 	uint32_t condition = SD_MUL_CONDITION_MASK;
 	uint32_t flagI = 1 << 25;
 	uint32_t flagP = 0;
-	uint32_t flagU =  1 << 23;
+	flagU =  1 << 23;
 	uint32_t flagL = 0;
 	uint32_t rn = 0;
 	uint32_t rd = atoi(strtok_r(instruction, "r,", &saveptr)) << 12;
@@ -26,6 +24,7 @@ void singleDataTransferAsm(char instruction[], char type[], int pc) {
 	char immediateValue[length];
 	strcpy(immediateValue, address);
 	address[strlen(address) - 1] = '\0';
+	
 	
 	if(strcmp(type, "str")) {
 		flagL = 1 << 20;
@@ -65,8 +64,10 @@ void singleDataTransferAsm(char instruction[], char type[], int pc) {
 		flagP = 1 << 24;
 		char s[1] = {address[2]};
 		rn = atoi(s) << 16;
-		flagI = 0;
 		offset = getOffset(address);
+		if(!shift) {
+			flagI = 0;
+		}
 		printf("offset is %u \n", offset);
 	} else {
 		char s[1] = {address[2]};
@@ -90,11 +91,28 @@ void singleDataTransferAsm(char instruction[], char type[], int pc) {
 uint32_t getOffset(char address[]) {
 	char *expression = malloc(strlen(address));
 	char *ptr;
+	if(strchr(address, '#')) {
 	strcpy(expression, strtok_r(address, "#", &ptr));
 	strcpy(expression, ptr);
 	expression[strlen(expression) - 1] = '\0';
-	if(strchr(expression, 'x')) {
-		return (uint32_t)strtol(address, NULL, 16);
+	} else {
+		shift = 1;
+		strcpy(expression, strtok_r(address, ",", &ptr));
+		strcpy(expression, ptr);
+		if(expression[0] == '-') {
+			flagU = 0;
+			strcpy(expression, expression + 1);
+		}
+		char s[1] = {expression[1]};
+		return atoi(s);
+	}
+	//printf("Expression is: %s \n", expression);
+	if(strchr(expression, 'x') && !strchr(expression, '-')) {
+		return (uint32_t)strtol(expression, NULL, 16);
+	} else if(strchr(expression, 'x')){ 
+		strcpy(expression, expression + 1);
+		flagU = 0;
+		return (uint32_t)strtol(expression, NULL, 16);
 	} else {
 		return atoi(expression);
 	}
