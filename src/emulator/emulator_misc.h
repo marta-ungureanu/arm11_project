@@ -91,6 +91,11 @@ struct State ARM;
 /*
  * DataProcessing Constants.
 */
+
+#define OPCODE_SHIFT 21
+#define RN_SHIFT 16
+#define RD_SHIFT 12
+
 #define OPCODE_AND 0
 #define OPCODE_EOR 1
 #define OPCODE_SUB 2
@@ -112,6 +117,11 @@ struct State ARM;
 #define LSR_SHIFT 1
 #define ASR_SHIFT 2
 #define ROR_SHIFT 3
+#define SHIFT_BIT 4
+#define OPTIONAL_REGISTER_SHIFT 7
+#define ROTATE_SHIFT 8
+#define SHIFT_TYPE_SHIFT 5
+
 
 
 void pipeline(void);

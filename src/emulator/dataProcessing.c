@@ -27,15 +27,15 @@ void dataProcessing(uint32_t instruction) {
 		return;
 	}
 
-	uint32_t opCode = ((instruction >> 21) & FOUR_BIT_MASK);
-	uint8_t rn = ((instruction >> 16) & FOUR_BIT_MASK);
-	uint8_t rd = ((instruction >> 12) & FOUR_BIT_MASK);
+	uint32_t opCode = ((instruction >> OPCODE_SHIFT) & FOUR_BIT_MASK);
+	uint8_t rn = ((instruction >> RN_SHIFT) & FOUR_BIT_MASK);
+	uint8_t rd = ((instruction >> RD_SHIFT) & FOUR_BIT_MASK);
 	uint32_t operand2 = (instruction & DP_OPERAND2_MASK);
 	uint32_t result;
 
 	if (isImmediateOperandSet(instruction)) {
 		operand2 = DPRotateRight((operand2 & EIGHT_BIT_MASK),
-			operand2 >> 8, opCode, instruction);
+			operand2 >> ROTATE_SHIFT, opCode, instruction);
 	} else {
 		operand2 = DPShift(operand2, opCode, instruction);
 	}
@@ -184,13 +184,13 @@ void setNBit(uint8_t value) {
  * Maximum shift value is 32.
  */
 uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
-	uint8_t shiftType = (operand2 >> 5) & TWO_BIT_MASK;
+	uint8_t shiftType = (operand2 >> SHIFT_TYPE_SHIFT) & TWO_BIT_MASK;
 	uint32_t value = ARM.registers[(operand2 & FOUR_BIT_MASK)];
 	uint8_t shiftValue;
-	if((operand2 >> 4) % 2 == 0){
-		shiftValue = operand2 >> 7;
+	if((operand2 >> SHIFT_BIT) % 2 == 0){
+		shiftValue = operand2 >> OPTIONAL_REGISTER_SHIFT;
 	} else {
-		uint32_t registerValue = ARM.registers[(operand2 >> 8)];
+		uint32_t registerValue = ARM.registers[(operand2 >> ROTATE_SHIFT)];
 		shiftValue = (registerValue & EIGHT_BIT_MASK);
 	}
 	if (shiftValue > 0) {
@@ -198,7 +198,7 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 		case LSL_SHIFT:
 			value = value << (shiftValue - 1);
 			if (isLogical(opCode) && sBitSet(instruction)
-			&& (decode(instruction) != 3)) {
+			&& (decode(instruction) != SINGLE_DATA_TRANSFER)) {
 				setCBit(value >> 31);
 			}
 			return value << 1;
@@ -206,7 +206,7 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 		case LSR_SHIFT:
 			value = value >> (shiftValue - 1);
 			if (isLogical(opCode) && sBitSet(instruction)
-			&& (decode(instruction) != 3)) {
+			&& (decode(instruction) != SINGLE_DATA_TRANSFER)) {
 				setCBit(value % 2);
 			}
 			return value >> 1;
@@ -221,7 +221,7 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 				shiftValue--;
 			}
 			if (isLogical(opCode) && sBitSet(instruction)
-			&& (decode(instruction) != 3)) {
+			&& (decode(instruction) != SINGLE_DATA_TRANSFER)) {
 				setCBit(value % 2);
 			}
 			if ((value >> 31) == 1) {
@@ -267,7 +267,8 @@ uint32_t DPRotateRight(uint32_t value, uint8_t shiftValue, uint8_t opCode,
 		}
 		shiftValue--;
 	}
-	if (isLogical(opCode) && sBitSet(instruction) && (decode(instruction) != 3)) {
+	if (isLogical(opCode) && sBitSet(instruction) &&
+	 (decode(instruction) != SINGLE_DATA_TRANSFER)) {
 		setCBit(value >> 31);
 	}
 	return value;
