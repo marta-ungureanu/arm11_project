@@ -36,11 +36,11 @@ void printStatus(void) {
 	for(int32_t i = 0; i < NUMBER_OF_REGISTERS; i++) {
 		if(i < 10) {
 			printf("$%d  :", i);
-		} else if(i < 13) {
+		} else if(i <= USEABLE_REGISTERS) {
 			printf("$%d :", i);
-		} else if(i == 15) {
+		} else if(i == PC) {
 			printf("PC  :");
-		} else if(i == 16) {
+		} else if(i == CPSR) {
 			printf("CPSR:");
 		} else {
 			continue;
@@ -49,13 +49,13 @@ void printStatus(void) {
 			printf("%12d (0x%08x)\n",
 			       ARM.registers[i], ARM.registers[i]);
 		} else {
-			printf("%11d (0x%08x)\n", 
+			printf("%11d (0x%08x)\n",
 			       ARM.registers[i], ARM.registers[i]);
 		}
 	}
 	printf("Non-zero memory:\n");
 	for(int32_t i = 0; i < SIZE_OF_MEMORY; i+=4) {
-		if(fetchInstruction(i) != 0) {
+		if(fetchInstruction(i) != STOP) {
 			printf("0x%08x: 0x%08x\n", i, printInstruction(i));
 		}
 	}

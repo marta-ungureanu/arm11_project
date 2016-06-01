@@ -34,7 +34,7 @@ void pipeline(void) {
 	int32_t initializedVariables = 0;
 
 	while(1){
-		if(decodedInstr == -1) {
+		if(decodedInstr == UNDEFINED) {
 			continue;
 		}
 		if(initializedVariables > 1) {
@@ -42,9 +42,9 @@ void pipeline(void) {
 			instrToDecode = fetchedInstr;
 			fetchedInstr = fetchInstruction(ARM.registers[PC]);
 			execute(decodedInstr, instrToExecute);
-			if(decodedInstr == 4 
+			if(decodedInstr == BRANCH
 			   && checkConditionField(instrToExecute)) {
-			initializedVariables =0;
+			initializedVariables = 0;
 			}
 			decodedInstr = decode(instrToDecode);
 		} else if(initializedVariables > 0) {
@@ -73,8 +73,9 @@ int32_t decode(uint32_t instruction) {
 	if(instruction == 0){
 		return STOP;
 	}
-	if (((instruction >> 4) & FOUR_BIT_MASK) == 9 
-	    && (((instruction >> 22) & SIX_BIT_MASK) == 0)) {
+	if (((instruction >> MULTIPLY_OPCODE1_SHIFT) & FOUR_BIT_MASK)
+		== MULTIPLY_OPCODE
+		&& (((instruction >> MULTIPLY_OPCODE2_SHIFT) & SIX_BIT_MASK) == 0)) {
 		return MULTIPLY;
 	}
 	if ((DATA_PROCESSING_MASK & instruction) == 0) {

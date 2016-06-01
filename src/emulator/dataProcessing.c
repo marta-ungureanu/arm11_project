@@ -47,14 +47,14 @@ void dataProcessing(uint32_t instruction) {
 		result = executeArithmetic(opCode, rn,
                              operand2, rd);
 	} else {
-		printf("OPCODE UNdefineD IN DATAPROCESSING FUNCTION.");
+		printf("OPCODE UNDEFINED IN DATAPROCESSING FUNCTION.");
 	}
 
 	if (sBitSet(instruction)) {
 		if (result == 0) {
-			setZBit(1);
+			setZBit(BIT_SET);
 		} else{
-			setZBit(0);
+			setZBit(BIT_NOT_SET);
 		}
 		setNBit(result >> 31);
 	}
@@ -103,7 +103,7 @@ bool isArithmetic(uint8_t opCode) {
  * returns true if the flag = 1
  */
 bool isImmediateOperandSet(uint32_t instruction) {
-	return ((instruction >> IMMEDIATE_FLAG_SHIFT) % 2) == 1;
+	return ((instruction >> IMMEDIATE_FLAG_SHIFT) % 2) == BIT_SET;
 }
 
 /* Function that checks whether the Set flag is set
@@ -115,7 +115,7 @@ bool isImmediateOperandSet(uint32_t instruction) {
  * returns true if the flag = 1
  */
 bool sBitSet(uint32_t instruction) {
-	return ((instruction >> SET_FLAG_SHIFT) % 2) == 1;
+	return ((instruction >> SET_FLAG_SHIFT) % 2) == BIT_SET;
 }
 
 /* Function that sets the CPSR C Flag to the supplied value
@@ -127,9 +127,9 @@ bool sBitSet(uint32_t instruction) {
  */
 void setCBit(uint8_t value) {
 	if (value) {
-		ARM.registers[CPSR] |= (1 << C_FLAG_SHIFT);
+		ARM.registers[CPSR] |= (BIT_SET << C_FLAG_SHIFT);
 	} else {
-		ARM.registers[CPSR] &= ~(1 << C_FLAG_SHIFT);
+		ARM.registers[CPSR] &= ~(BIT_SET << C_FLAG_SHIFT);
 	}
 }
 
@@ -142,9 +142,9 @@ void setCBit(uint8_t value) {
  */
 void setZBit(uint8_t value) {
 	if (value) {
-		ARM.registers[CPSR] |= (1 << Z_FLAG_SHIFT);
+		ARM.registers[CPSR] |= (BIT_SET << Z_FLAG_SHIFT);
 	} else {
-		ARM.registers[CPSR] &= ~(1 << Z_FLAG_SHIFT);
+		ARM.registers[CPSR] &= ~(BIT_SET << Z_FLAG_SHIFT);
 	}
 }
 
@@ -157,9 +157,9 @@ void setZBit(uint8_t value) {
  */
 void setNBit(uint8_t value) {
 	if (value) {
-		ARM.registers[CPSR] |= (1 << N_FLAG_SHIFT);
+		ARM.registers[CPSR] |= (BIT_SET << N_FLAG_SHIFT);
 	} else {
-		ARM.registers[CPSR] &= ~(1 << N_FLAG_SHIFT);
+		ARM.registers[CPSR] &= ~(BIT_SET << N_FLAG_SHIFT);
 	}
 }
 
@@ -187,7 +187,7 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 	uint8_t shiftType = (operand2 >> SHIFT_TYPE_SHIFT) & TWO_BIT_MASK;
 	uint32_t value = ARM.registers[(operand2 & FOUR_BIT_MASK)];
 	uint8_t shiftValue;
-	if((operand2 >> SHIFT_BIT) % 2 == 0){
+	if((operand2 >> SHIFT_BIT) % 2 == BIT_NOT_SET){
 		shiftValue = operand2 >> OPTIONAL_REGISTER_SHIFT;
 	} else {
 		uint32_t registerValue = ARM.registers[(operand2 >> ROTATE_SHIFT)];
@@ -199,7 +199,7 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 			value = value << (shiftValue - 1);
 			if (isLogical(opCode) && sBitSet(instruction)
 			&& (decode(instruction) != SINGLE_DATA_TRANSFER)) {
-				setCBit(value >> 31);
+				setCBit(value % 2);
 			}
 			return value << 1;
 
@@ -213,8 +213,8 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 
 		case ASR_SHIFT:
 			while (shiftValue > 1) {
-				if ((value >> 31) == 1) {
-					value = (value >> 1) + (1 << 31);
+				if ((value >> 31) == BIT_SET) {
+					value = (value >> 1) + (BIT_SET << 31);
 				} else {
 					value = value >> 1;
 				}
@@ -224,8 +224,8 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 			&& (decode(instruction) != SINGLE_DATA_TRANSFER)) {
 				setCBit(value % 2);
 			}
-			if ((value >> 31) == 1) {
-				value = (value >> 1) + (1 << 31);
+			if ((value >> 31) == BIT_SET) {
+				value = (value >> 1) + (BIT_SET << 31);
 			} else {
 				value = value >> 1;
 			}
@@ -257,11 +257,11 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
  */
 uint32_t DPRotateRight(uint32_t value, uint8_t shiftValue, uint8_t opCode,
 	uint32_t instruction) {
-	shiftValue = shiftValue *2;
+	shiftValue = shiftValue * 2;
 	while (shiftValue > 0) {
-		if (value % 2 == 1) {
+		if (value % 2 == BIT_SET) {
 			value = value >> 1;
-			value = value + (1 << 31);
+			value = value + (BIT_SET << 31);
 		} else {
 			value = value >> 1;
 		}
@@ -269,7 +269,7 @@ uint32_t DPRotateRight(uint32_t value, uint8_t shiftValue, uint8_t opCode,
 	}
 	if (isLogical(opCode) && sBitSet(instruction) &&
 	 (decode(instruction) != SINGLE_DATA_TRANSFER)) {
-		setCBit(value >> 31);
+		setCBit(value % 2);
 	}
 	return value;
 }
@@ -337,21 +337,21 @@ uint32_t executeArithmetic(uint8_t opCode, uint8_t rn,
 	case OPCODE_SUB:
 		if (checkAdditionOverflow(ARM.registers[rn],
 			(~(operand2Value)+1))) {
-			setCBit(0);
+			setCBit(BIT_NOT_SET);
 		} else {
-			setCBit(1);
+			setCBit(BIT_SET);
 		}
 		ARM.registers[rd] =
 		(ARM.registers[rn] - operand2Value);
 		return ARM.registers[rd];
 	case OPCODE_RSB:
 		if( ARM.registers[rn] > operand2Value){
-			setCBit(0);
+			setCBit(BIT_NOT_SET);
 		} else if (checkAdditionOverflow(operand2Value,
 			  ((~ARM.registers[rn]) + 1))) {
-			setCBit(0);
+			setCBit(BIT_NOT_SET);
 		} else {
-			setCBit(1);
+			setCBit(BIT_SET);
 		}
 		ARM.registers[rd] =
 		(operand2Value - ARM.registers[rn]);
@@ -359,18 +359,18 @@ uint32_t executeArithmetic(uint8_t opCode, uint8_t rn,
 	case OPCODE_ADD:
 		if (checkAdditionOverflow(ARM.registers[rn],
 		    operand2Value)) {
-			setCBit(1);
+			setCBit(BIT_SET);
 		} else {
-			setCBit(0);
+			setCBit(BIT_NOT_SET);
 		}
 		ARM.registers[rd] =
 		(ARM.registers[rn] + operand2Value);
 		return ARM.registers[rd];
 	case OPCODE_CMP:
 		if(operand2Value > ARM.registers[rn]){
-			setCBit(0);
+			setCBit(BIT_NOT_SET);
 		} else{
-			setCBit(1);
+			setCBit(BIT_SET);
 		}
 		result = ARM.registers[rn] - operand2Value;
 		return  result;

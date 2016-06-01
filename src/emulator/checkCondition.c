@@ -18,11 +18,11 @@
  * RETURN: bool
  */
 bool checkConditionField(uint32_t instruction) {
-	uint8_t condition = instruction >> 28;
+	uint8_t condition = instruction >> CONDITION_SHIFT;
 	uint32_t cprs = ARM.registers[CPSR];
-	uint32_t flagV = (cprs >> 28) % 2;
-	uint32_t flagZ = (cprs >> 30) % 2;
-	uint32_t flagN = cprs >> 31;
+	uint32_t flagV = (cprs >> V_FLAG_SHIFT) % 2;
+	uint32_t flagZ = (cprs >> Z_FLAG_SHIFT) % 2;
+	uint32_t flagN = cprs >> N_FLAG_SHIFT;
 
 	return  (condition == EQUAL && flagZ == BIT_SET) ||
 			(condition == NOT_EQUAL && flagZ == BIT_NOT_SET) ||

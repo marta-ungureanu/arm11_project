@@ -7,6 +7,7 @@
 
 #define SIZE_OF_MEMORY 65536
 #define NUMBER_OF_REGISTERS 17
+#define USEABLE_REGISTERS 12
 #define PC 15
 #define CPSR 16
 
@@ -29,6 +30,9 @@ struct State ARM;
 #define DP_OPERAND2_MASK ((1 << 12) -1)
 #define TWENTYFOUR_BIT_MASK 0x00FFFFFF
 
+#define MULTIPLY_OPCODE 9
+#define MULTIPLY_OPCODE1_SHIFT 4
+#define MULTIPLY_OPCODE2_SHIFT 22
 #define MULTIPLY_ACCUMULATOR_MASK 1 << 21
 #define MULTIPLY_CONDITION_MASK 1 << 20
 #define MUL_SD_REG_MASK1 15 << 16
@@ -71,7 +75,7 @@ struct State ARM;
 #define BIT_SET 1
 #define BIT_NOT_SET 0
 
-
+#define CONDITION_SHIFT 28
 #define ONE_BYTE_SHIFT 8
 #define TWO_BYTES_SHIFT 16
 #define THREE_BYTES_SHIFT 24
@@ -109,6 +113,7 @@ struct State ARM;
 
 #define IMMEDIATE_FLAG_SHIFT 25
 #define SET_FLAG_SHIFT 20
+#define V_FLAG_SHIFT 28
 #define C_FLAG_SHIFT 29
 #define Z_FLAG_SHIFT 30
 #define N_FLAG_SHIFT 31
