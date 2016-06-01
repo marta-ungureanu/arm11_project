@@ -1,6 +1,6 @@
 /* ARM Project 2016
  *
- * singleDataTransfer.c contains the function that executes a single data 
+ * singleDataTransfer.c contains the function that executes a single data
  * transfer instruction
  *
  * Group 3
@@ -16,16 +16,16 @@
  * 32 bit binary representation of the instruction to be executed
  *
  * RETURN: void
- * 
- * if the flagI is set then Offset is interpreted as a shifted register taking 
- * into account that a post-indexing load or store in which Rm is the same 
+ *
+ * if the flagI is set then Offset is interpreted as a shifted register taking
+ * into account that a post-indexing load or store in which Rm is the same
  * register as Rn is not allowed
- * 
- * if flagU is set, the offset is added to the base register, otherwise 
+ *
+ * if flagU is set, the offset is added to the base register, otherwise
  * is subtracted
  *
- * if flagP is set the offset is added/subtracted to the base register before 
- * transferring the data, otherwise the offset is added/subtracted to the base 
+ * if flagP is set the offset is added/subtracted to the base register before
+ * transferring the data, otherwise the offset is added/subtracted to the base
  * register after transferring.
  */
 void singleDataTransfer(uint32_t instruction) {
@@ -49,7 +49,7 @@ void singleDataTransfer(uint32_t instruction) {
 			perror("Operation not allowed!");
 			exit(EXIT_FAILURE);
 		}
-		offset = DPShift(offset, ((offset >> 1) & LAST_TWO_BITS), 
+		offset = DPShift(offset, ((offset >> 1) & LAST_TWO_BITS),
 				instruction);
 	}
 
@@ -66,18 +66,18 @@ void singleDataTransfer(uint32_t instruction) {
 	}
 }
 
-/* function that load or store  
+/* function that load or store
  *
  * PARAM: uint32_t rd, uint32_t address, uint32_t flag
  * rd      : 32 bit binary representations of the Rd (register destination)
  * address : the address in the memory
- * flagL   : load/store 
+ * flagL   : load/store
  *
  * RETURN: void
- * 
+ *
  * if flagU is set, the word is loaded from memory, otherwise the word is stored
  * into memory
- * 
+ *
  * if the address is out of bounds it will print a message accordingly
  */
 void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
@@ -89,16 +89,15 @@ void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
 			if(status) {
 				ARM.registers[rd] = address;
 			}
-
 		}
 	} else {
 		uint32_t registerContent = ARM.registers[rd];
 		uint32_t byte4 = registerContent & EIGHT_BIT_MASK;
-		uint32_t byte3 = (registerContent & (EIGHT_BIT_MASK << 
+		uint32_t byte3 = (registerContent & (EIGHT_BIT_MASK <<
 				 ONE_BYTE_SHIFT)) >> ONE_BYTE_SHIFT;
-		uint32_t byte2 = (registerContent & (EIGHT_BIT_MASK << 
+		uint32_t byte2 = (registerContent & (EIGHT_BIT_MASK <<
 				 TWO_BYTES_SHIFT)) >> TWO_BYTES_SHIFT;
-		uint32_t byte1 = (registerContent & (EIGHT_BIT_MASK << 
+		uint32_t byte1 = (registerContent & (EIGHT_BIT_MASK <<
 				 THREE_BYTES_SHIFT)) >> THREE_BYTES_SHIFT;
 
 		if(address + THREE_BYTES < SIZE_OF_MEMORY){
@@ -112,14 +111,14 @@ void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
 	}
 }
 
-/* Function that prints a message when the address is out of bounds taking into 
+/* Function that prints a message when the address is out of bounds taking into
  * consideration particular cases related to pins
  *
  * PARAM: uint32_t address
  * 32 bit binary representation of the out of bounds address
  *
  * RETURN: uint32_t
- * 
+ *
  */
 uint32_t printMessage(uint32_t address) {
 	switch(address) {
