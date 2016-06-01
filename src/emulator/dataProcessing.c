@@ -1,112 +1,187 @@
+/* ARM Project 2016
+ *
+ * dataProcessing.c contains the function that executes a dataProcessing
+ * instruction
+ *
+ * Group 3
+ * Members: abp14, oc1115, mu515, mz4715
+ */
+
 #include <limits.h>
 #include "emulator_misc.h"
 
-/* function that determines which Data Processing instruction to execute
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * If the condition field is valid then dataProcessing splits the instruction
- * into its opcode, registers and operand2. It then determines how to interpret
- * operand2 based upon the Immediate flag and then passes the opcode to a
- * helper function depending on whether it is a logical operation or an
- * arithmetic operation.
+/* Function that determines which Data Processing instruction to execute
  *
- * Within the shift functions and the executeArithmetic function, it determines
- * what value to set the C flag to and the Z flag and N flag are determined
- * once the instruction is executed.
+ * PARAM : uint32_t instruction
+ * 32 bit binary representation of the instruction to be execute
+ *
+ * RETURN : void
+ *
+ * If the condition field is valid then dataProcessing splits the instruction
+ * into its opcode, registers and operand2. It then passes operand2 to the
+ * either DPRotateRight or DPShift depending on the value of the immediate flag.
+ * It also sets the appropriate Z and N flag if the S bit is set.
  */
-
 void dataProcessing(uint32_t instruction) {
-	// if the condition does not hold, the instruction is not executed
 	if (!checkConditionField(instruction)) {
 		return;
+	}
+
+	uint32_t opCode = ((instruction >> 21) & FOUR_BIT_MASK);
+	uint8_t rn = ((instruction >> 16) & FOUR_BIT_MASK);
+	uint8_t rd = ((instruction >> 12) & FOUR_BIT_MASK);
+	uint32_t operand2 = (instruction & DP_OPERAND2_MASK);
+	uint32_t result;
+
+	if (isImmediateOperandSet(instruction)) {
+		operand2 = DPRotateRight((operand2 & EIGHT_BIT_MASK),
+			operand2 >> 8, opCode, instruction);
 	} else {
+		operand2 = DPShift(operand2, opCode, instruction);
+	}
 
-		uint32_t opCode = ((instruction >> 21) & FOUR_BIT_MASK);
-		uint8_t firstRegister = ((instruction >> 16) & FOUR_BIT_MASK);
-		uint8_t destinationRegister = ((instruction >> 12) 
-					      & FOUR_BIT_MASK);
-		uint32_t operand2 = (instruction & DP_OPERAND2_MASK);
-		uint32_t result;
+	if (isLogical(opCode)) {
+		result = executeLogical(opCode, rn, operand2,
+			 rd);
+	} else if (isArithmetic(opCode)) {
+		result = executeArithmetic(opCode, rn,
+                             operand2, rd);
+	} else {
+		printf("OPCODE UNdefineD IN DATAPROCESSING FUNCTION.");
+	}
 
-		if (isImmediateOperandSet(instruction)) {
-			operand2 = DPRotateRight((operand2 & EIGHT_BIT_MASK),
-				   operand2 >> 8, opCode, instruction);
-		} else {
-			operand2 = DPShift(operand2, opCode, instruction);
+	if (sBitSet(instruction)) {
+		if (result == 0) {
+			setZBit(1);
+		} else{
+			setZBit(0);
 		}
-		if (isLogical(opCode)) {
-			result = executeLogical(opCode, firstRegister, operand2,
-				 destinationRegister);
-		} else if (isArithmetic(opCode)) {
-			result = executeArithmetic(opCode, firstRegister, 
-                                 operand2, destinationRegister);
-		} else {
-			printf("OPCODE UNDEFINED IN DATAPROCESSING FUNCTION.");
-		}
-		if (sBitSet(instruction)) {
-			if (result == 0) {
-				setZBit(1);
-			} else{
-				setZBit(0);
-			}
-			setNBit(result >> 31);
-		}
+		setNBit(result >> 31);
 	}
 }
 
+/* Function that determines if the opcode correpsonds to a logical operation
+ *
+ * PARAM : uint8_t opcode
+ * 8 bit binary representation of the opcode of the instruction
+ *
+ * RETURN : bool
+ * returns true if the opcode is a logical operation (0,1,8,9,12,13)
+ * returns false otherwise
+ */
 bool isLogical(uint8_t opCode) {
-	return (opCode == 0 ||
-		opCode == 1 ||
-		opCode == 8 ||
-		opCode == 9 ||
-		opCode == 12 ||
-		opCode == 13);
+	return (opCode == OPCODE_AND ||
+		opCode == OPCODE_EOR ||
+		opCode == OPCODE_TST ||
+		opCode == OPCODE_TEQ ||
+		opCode == OPCODE_ORR ||
+		opCode == OPCODE_MOV);
 }
 
+/* Function that determines if the opcode correpsonds to a arithmetic operation
+ *
+ * PARAM : uint8_t opcode
+ * 8 bit binary representation of the opcode of the instruction
+ *
+ * RETURN : bool
+ * returns true if the opcode is a arithmetic operation (2,3,4,10)
+ * returns false otherwise
+ */
 bool isArithmetic(uint8_t opCode) {
-	return (opCode == 2 ||
-		opCode == 3 ||
-		opCode == 4 ||
-		opCode == 10);
+	return (opCode == OPCODE_SUB ||
+		opCode == OPCODE_RSB ||
+		opCode == OPCODE_ADD ||
+		opCode == OPCODE_CMP);
 }
 
+/* Function that checks whether the Immediate flag is set
+ *
+ * PARAM : uint32_t instruction
+ * 32 bit binary representation of instruction
+ *
+ * RETURN : bool
+ * returns true if the flag = 1
+ */
 bool isImmediateOperandSet(uint32_t instruction) {
-	return (((instruction >> 25) % 2) == 1);
+	return ((instruction >> IMMEDIATE_FLAG_SHIFT) % 2) == 1;
 }
 
-// Function that determines if the S bit is set
+/* Function that checks whether the Set flag is set
+ *
+ * PARAM : uint32_t instruction
+ * 32 bit binary representation of the instruction
+ *
+ * RETURN : bool
+ * returns true if the flag = 1
+ */
 bool sBitSet(uint32_t instruction) {
-	return (((instruction >> 20) % 2) == 1);
+	return ((instruction >> SET_FLAG_SHIFT) % 2) == 1;
 }
 
-// Function that sets the CFlag to the supplied value
+/* Function that sets the CPSR C Flag to the supplied value
+ *
+ * PARAM : uint8_t instruction
+ * The value (1 or 0) which the C Flag should be set to
+ *
+ * RETURN : void
+ */
 void setCBit(uint8_t value) {
 	if (value) {
-		ARM.registers[CPSR] |= (1 << 29);
+		ARM.registers[CPSR] |= (1 << C_FLAG_SHIFT);
 	} else {
-		ARM.registers[CPSR] &= ~(1 << 29);
+		ARM.registers[CPSR] &= ~(1 << C_FLAG_SHIFT);
 	}
 }
 
-// Function that sets the ZFlag to the supplied value
+/* Function that sets the CPSR Z Flag to the supplied value
+ *
+ * PARAM : uint8_t instruction
+ * The value (1 or 0) which the Z Flag should be set to
+ *
+ * RETURN : void
+ */
 void setZBit(uint8_t value) {
 	if (value) {
-		ARM.registers[CPSR] |= (1 << 30);
+		ARM.registers[CPSR] |= (1 << Z_FLAG_SHIFT);
 	} else {
-		ARM.registers[CPSR] &= ~(1 << 30);
+		ARM.registers[CPSR] &= ~(1 << Z_FLAG_SHIFT);
 	}
 }
 
-// Function that sets the NFlag to the supplied value
+/* Function that sets the CPSR N Flag to the supplied value
+ *
+ * PARAM : uint8_t instruction
+ * The value (1 or 0) which the N Flag should be set to
+ *
+ * RETURN : void
+ */
 void setNBit(uint8_t value) {
 	if (value) {
-		ARM.registers[CPSR] |= (1 << 31);
+		ARM.registers[CPSR] |= (1 << N_FLAG_SHIFT);
 	} else {
-		ARM.registers[CPSR] &= ~(1 << 31);
+		ARM.registers[CPSR] &= ~(1 << N_FLAG_SHIFT);
 	}
 }
 
-/*Function that determines and carries out the appropriate shift, setting
- *flags if necessary
+/* Function that determines how the register values are shifted in operand2.
+ *
+ * PARAM : uint32_t operand2, uint8_t opCode, uint32_t instruction
+ * operand2: 12 least significant bits of the instruction
+ * opCode: 8 bit value representing which instruction is being executed
+ * instruction: the 32 bit instruction initially passed.
+ *
+ * RETURN : uint32_t
+ * The value of operand2, which in this case is a register shifted by either
+ * an immediate value, or another register.
+ *
+ * The function first determines the shiftType and value stored in the register
+ * which is supplied in the instruction. It then carries out one of four shifts
+ * to (lsl, lsr, asr, ror). The amount it is shifted by is either an immediate
+ * value or a register. These two cases are differentiated by the value of the
+ * fourth bit in operand2. If the fourth bit = 1 it then a shift by a register
+ * occurs, if the fourth bit = 0 then a shift by an integer occurs.
+ *
+ * Maximum shift value is 32.
  */
 uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 	uint8_t shiftType = (operand2 >> 5) & TWO_BIT_MASK;
@@ -120,7 +195,7 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 	}
 	if (shiftValue > 0) {
 		switch (shiftType) {
-		case 0:
+		case LSL_SHIFT:
 			value = value << (shiftValue - 1);
 			if (isLogical(opCode) && sBitSet(instruction)
 			&& (decode(instruction) != 3)) {
@@ -128,7 +203,7 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 			}
 			return value << 1;
 
-		case 1:
+		case LSR_SHIFT:
 			value = value >> (shiftValue - 1);
 			if (isLogical(opCode) && sBitSet(instruction)
 			&& (decode(instruction) != 3)) {
@@ -136,7 +211,7 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 			}
 			return value >> 1;
 
-		case 2:
+		case ASR_SHIFT:
 			while (shiftValue > 1) {
 				if ((value >> 31) == 1) {
 					value = (value >> 1) + (1 << 31);
@@ -155,7 +230,7 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 				value = value >> 1;
 			}
 			return value;
-		case 3:
+		case ROR_SHIFT:
 			return DPRotateRight(value, shiftValue,
 			       opCode, instruction);
 		}
@@ -163,8 +238,23 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 	return value;
 }
 
-/* Function that carries out a rotate right shift
-*/
+/* Function that determines the shift of an immediate value.
+ *
+ * PARAM : uint32_t value, uint8_t shiftValue, uint8_t opCode,
+ 		   uint32_t instruction
+ * value : the immediate value stored in the last 8 bits of instruction
+ * shiftValue : the value stored in bits 11 - 8 of instruction.
+ * opCode: 8 bit value representing which instruction is being executed
+ * instruction: the 32 bit instruction initially passed.
+ *
+ * RETURN : uint32_t
+ * The value of operand2, which in this case is an immediate value rotated
+ * by a constant stored in bits 11 -8.
+ *
+ * The function carries out a right rotation on the value specified.
+ * It rotates value by the shift value and sets the C bit if the Set Flag is
+ * set in the instruction.
+ */
 uint32_t DPRotateRight(uint32_t value, uint8_t shiftValue, uint8_t opCode,
 	uint32_t instruction) {
 	shiftValue = shiftValue *2;
@@ -183,82 +273,120 @@ uint32_t DPRotateRight(uint32_t value, uint8_t shiftValue, uint8_t opCode,
 	return value;
 }
 
-uint32_t executeLogical(uint8_t opCode, uint8_t firstRegister,
-	uint32_t operand2Value, uint8_t destinationRegister) {
+/* Function that executes a logical operation
+ *
+ * PARAM : uint8_t opCode, uint8_t rn, uint32_t operand2Value, uint8_t rd
+ * opCode: 8 bit value representing which instruction is being executed
+ * rn: the supplied register to carry out the operation on.
+ * operand2Value: the value calculated by shifting the bits 11 - 0
+ * uint8_t rd: the register where the result will be stored.
+ *
+ * RETURN : uint32_t
+ * The value that is calculated by the particular logical expression.
+ *
+ * Executes one of the following logical operations (depending on the opcode)
+ * and returns the result (writing to the specified rd if necessary):
+ * AND, EOR, TST, TEQ, ORR, MOV
+ */
+uint32_t executeLogical(uint8_t opCode, uint8_t rn,uint32_t operand2Value,
+						uint8_t rd) {
 	switch (opCode) {
-	case 0:
-		ARM.registers[destinationRegister] =
-		(ARM.registers[firstRegister] & operand2Value);
-		return ARM.registers[destinationRegister];
-	case 1:
-		ARM.registers[destinationRegister] =
-		(ARM.registers[firstRegister] ^ operand2Value);
-		return ARM.registers[destinationRegister];
-	case 8:
-		return ARM.registers[firstRegister] & operand2Value;
-	case 9:
-		return ARM.registers[firstRegister] ^ operand2Value;
-	case 12:
-		ARM.registers[destinationRegister] =
-		(ARM.registers[firstRegister] | operand2Value);
-		return ARM.registers[destinationRegister];
-	case 13:
-		ARM.registers[destinationRegister] = operand2Value;
-		return ARM.registers[destinationRegister];
+	case OPCODE_AND:
+		ARM.registers[rd] =
+		(ARM.registers[rn] & operand2Value);
+		return ARM.registers[rd];
+	case OPCODE_EOR:
+		ARM.registers[rd] =
+		(ARM.registers[rn] ^ operand2Value);
+		return ARM.registers[rd];
+	case OPCODE_TST:
+		return ARM.registers[rn] & operand2Value;
+	case OPCODE_TEQ:
+		return ARM.registers[rn] ^ operand2Value;
+	case OPCODE_ORR:
+		ARM.registers[rd] =
+		(ARM.registers[rn] | operand2Value);
+		return ARM.registers[rd];
+	case OPCODE_MOV:
+		ARM.registers[rd] = operand2Value;
+		return ARM.registers[rd];
 	}
 	printf("unreachable code in executeLogical.");
 	return 0;
 }
-
-uint32_t executeArithmetic(uint8_t opCode, uint8_t firstRegister,
-	uint32_t operand2Value, uint8_t destinationRegister) {
+/* Function that executes a arithmetic operation
+ *
+ * PARAM : uint8_t opCode, uint8_t rn, uint32_t operand2Value, uint8_t rd
+ * opCode: 8 bit value representing which instruction is being executed
+ * rn: the supplied register to carry out the operation on.
+ * operand2Value: the value calculated by shifting the bits 11 - 0
+ * uint8_t rd: the register where the result will be stored.
+ *
+ * RETURN : uint32_t
+ * The value that is calculated by the particular arithmetic expression.
+ *
+ * Executes one of the following arithmetic operations (depending on the opcode)
+ * and returns the result (writing to the specified rd if necessary):
+ * AND, EOR, TST, TEQ, ORR, MOV
+ */
+uint32_t executeArithmetic(uint8_t opCode, uint8_t rn,
+	uint32_t operand2Value, uint8_t rd) {
 	uint32_t result;
 	switch (opCode) {
-	case 2:
-		if (checkAdditionOverflow(ARM.registers[firstRegister],
+	case OPCODE_SUB:
+		if (checkAdditionOverflow(ARM.registers[rn],
 			(~(operand2Value)+1))) {
 			setCBit(0);
 		} else {
 			setCBit(1);
 		}
-		ARM.registers[destinationRegister] =
-		(ARM.registers[firstRegister] - operand2Value);
-		return ARM.registers[destinationRegister];
-	case 3:
-		if( ARM.registers[firstRegister] > operand2Value){
+		ARM.registers[rd] =
+		(ARM.registers[rn] - operand2Value);
+		return ARM.registers[rd];
+	case OPCODE_RSB:
+		if( ARM.registers[rn] > operand2Value){
 			setCBit(0);
 		} else if (checkAdditionOverflow(operand2Value,
-			  ((~ARM.registers[firstRegister]) + 1))) {
+			  ((~ARM.registers[rn]) + 1))) {
 			setCBit(0);
 		} else {
 			setCBit(1);
 		}
-		ARM.registers[destinationRegister] =
-		(operand2Value - ARM.registers[firstRegister]);
-		return ARM.registers[destinationRegister];
-	case 4:
-		if (checkAdditionOverflow(ARM.registers[firstRegister],
+		ARM.registers[rd] =
+		(operand2Value - ARM.registers[rn]);
+		return ARM.registers[rd];
+	case OPCODE_ADD:
+		if (checkAdditionOverflow(ARM.registers[rn],
 		    operand2Value)) {
 			setCBit(1);
 		} else {
 			setCBit(0);
 		}
-		ARM.registers[destinationRegister] =
-		(ARM.registers[firstRegister] + operand2Value);
-		return ARM.registers[destinationRegister];
-	case 10:
-		if(operand2Value > ARM.registers[firstRegister]){
+		ARM.registers[rd] =
+		(ARM.registers[rn] + operand2Value);
+		return ARM.registers[rd];
+	case OPCODE_CMP:
+		if(operand2Value > ARM.registers[rn]){
 			setCBit(0);
 		} else{
 			setCBit(1);
 		}
-		result = ARM.registers[firstRegister] - operand2Value;
+		result = ARM.registers[rn] - operand2Value;
 		return  result;
 	}
 	printf("unreachable code in executeArithmetic.");
 	return 0;
 }
 
+/* Function that checks for arithmetic overflow.
+ *
+ * PARAM : uint32_t a, uint32_t b
+ * a: first value
+ * b: second value
+ *
+ * RETURN : uint32_t
+ * returns true if the addition of the two numbers would result in overflow.
+*/
 bool checkAdditionOverflow(uint32_t a, uint32_t b) {
 	return ( a > (INT_MAX - b) || b > (INT_MAX -a));
 }

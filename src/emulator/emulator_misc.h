@@ -88,6 +88,31 @@ struct State ARM;
 #define RD_SHIFT 12
 #define LAST_TWO_BITS 3
 
+/*
+ * DataProcessing Constants.
+*/
+#define OPCODE_AND 0
+#define OPCODE_EOR 1
+#define OPCODE_SUB 2
+#define OPCODE_RSB 3
+#define OPCODE_ADD 4
+#define OPCODE_TST 8
+#define OPCODE_TEQ 9
+#define OPCODE_CMP 10
+#define OPCODE_ORR 12
+#define OPCODE_MOV 13
+
+#define IMMEDIATE_FLAG_SHIFT 25
+#define SET_FLAG_SHIFT 20
+#define C_FLAG_SHIFT 29
+#define Z_FLAG_SHIFT 30
+#define N_FLAG_SHIFT 31
+
+#define LSL_SHIFT 0
+#define LSR_SHIFT 1
+#define ASR_SHIFT 2
+#define ROR_SHIFT 3
+
 
 void pipeline(void);
 void execute(int code, uint32_t instruction);
@@ -106,11 +131,11 @@ bool sBitSet(uint32_t instruction);
 bool isLogical(uint8_t opCode);
 bool isArithmetic(uint8_t opCode);
 bool checkAdditionOverflow(uint32_t a, uint32_t b);
-uint32_t executeLogical(uint8_t opCode, uint8_t firstRegister, 
+uint32_t executeLogical(uint8_t opCode, uint8_t firstRegister,
 			uint32_t operand2Value, uint8_t destinationRegister);
-uint32_t executeArithmetic(uint8_t opCode, uint8_t firstRegister, 
+uint32_t executeArithmetic(uint8_t opCode, uint8_t firstRegister,
 			   uint32_t operand2Value, uint8_t destinationRegister);
-uint32_t DPRotateRight(uint32_t operand2, uint8_t value, 
+uint32_t DPRotateRight(uint32_t operand2, uint8_t value,
 		       uint8_t opCode, uint32_t instruction);
 uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction);
 void setZBit(uint8_t value);
