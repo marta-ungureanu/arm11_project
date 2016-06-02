@@ -25,30 +25,26 @@ void decode(char line[], int address) {
 	char temp[strlen(line)];
 	strcpy(temp, line);
 	char *saveptr;
-	//printf("temp is: %s\n", temp);
 
 	while(temp[0] == ' ' || temp[0] == '\n' || temp[0] == '\t'){
-		//p = strtok_r(NULL, " ", &saveptr);
-		strcpy(temp, temp+1);
-		//printf("p is: %s\n", p);
-
+		strcpy(temp, temp + 1);
 	}
+
 	if(strlen(temp) == 0){
 		return;
 	}
+
 	char *p = strtok_r(temp, " ", &saveptr);
-						//exit(EXIT_SUCCESS);
-	//printf("instruction is: %s\n", p);
 	int location = getLocation(p);
 	char *restOfInstruction = line + strlen(p) + 1;
 	int code = instructionSet[location].type;
-	//printf("the code is %d\n", code);
+
 	switch (code){
-		case 0:
-			write(0);
-			break;
-		case 1:
-			multiplyAsm(restOfInstruction);
+	case 0:
+		write(0);
+		break;
+	case 1:
+		multiplyAsm(instructionSet[location].instruction, restOfInstruction);
 		break;
     case 2:
     	dataProcessingAsm(instructionSet[location].opcode, restOfInstruction);
@@ -57,7 +53,20 @@ void decode(char line[], int address) {
     	singleDataTransferAsm(restOfInstruction, instructionSet[location].instruction, address);
     	break;
     case 4:
-			branchAsm(line, address);
+		branchAsm(line, address);
     	break;
   }
+}
+
+void write(uint32_t instruction) {
+	fwrite(&instruction, 4, 1, fout);
+}
+
+bool isLabel(char a[], int noOfLabels) {
+	for(int i = 0; i <= noOfLabels; i++) {
+		if(strcmp(labelsTable[i].label, a) == 0) {
+			return true;
+		}
+	}
+	return false;
 }

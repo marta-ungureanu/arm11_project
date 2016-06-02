@@ -1,9 +1,9 @@
 #ifndef INSTRUCTIONS_TABLE_H_
 #define INSTRUCTIONS_TABLE_H_
+
 #include<stdint.h>
 
 #define NUMBER_OF_INSTRUCTIONS 23
-
 
 struct entry{
 	char instruction[5];
@@ -35,6 +35,6 @@ struct entry{
   {"andeq", 0, 0}
 };
 
-int32_t getLocation(char c[]);
+int32_t getLocation(char instruction[]);
 
 #endif

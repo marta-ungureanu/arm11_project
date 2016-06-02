@@ -1,17 +1,34 @@
+/* ARM Project 2016
+ *
+ * assembler_misc.c contains all the macros used in implementing the assembler,
+ * the labelsTable and the output file, fout, as well as the headers of almost
+ * all the functions used
+ *
+ * Group 3
+ * Members: abp14, oc1115, mu515, mz4715
+ */
+
 #ifndef ASSEMBLER_MISC_H_
 #define ASSEMBLER_MISC_H_
 
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 #define PRINTING_INSTRUCTION_SIZE 32
 #define PRINTING_MASK 1 << 31
+
 #define MUL_COMMON_BITS_MASK 9 << 4
 #define MUL_CONDITION_MASK 0xe << 28
+#define MUL_RD_SHIFT 16
+#define MUL_RS_SHIFT 8
+#define MUL_RN_SHIFT 12
+
 #define SD_MUL_CONDITION_MASK 0xe << 28
 #define SD_COMMON_BITS_MASK 1 << 26
 #define SD_CONDITION_MASK 0
+
 #define FOURTH_BYTE_MASK 0xff
 #define THIRD_BYTE_MASK 0xff << 8
 #define SECOND_BYTE_MASK 0xff << 16
@@ -28,6 +45,19 @@
 
 #define DP_COMMON_BITS_MASK 0xe << 28
 
+#define FIN_LOCATION 1
+#define FOUT_LOCATION 2
+
+#define FIRST_CHARACTER_LOCATION 0
+
+#define STOP 0
+#define MULTIPLY 1
+#define DATA_PROCESSING 2
+#define SINGLE_DATA_TRANSFER 3
+#define BRANCH 4
+
+#define INSTRUCTION_SIZE 4
+#define MAX_CHARS_PER_LINE 512
 
 struct Table {
 		char label[512];
@@ -42,9 +72,10 @@ int32_t noOfInstructions;
 uint32_t flagU;
 FILE *fout;
 
-void decode(char line[], int address);
+void decode(char line[], int32_t address);
 void write(uint32_t instruction);
-void multiplyAsm(char instruction[]);
+bool isLabel(char string[], int32_t noOfLabels);
+void multiplyAsm(char mnemonic[], char instruction[]);
 void dataProcessingAsm(uint32_t opcode, char instruction[]);
 
 uint32_t encodeShiftedRegister(char instruction[], char *arg1, char *arg2);
