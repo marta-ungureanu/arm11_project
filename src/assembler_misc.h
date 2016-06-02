@@ -42,6 +42,8 @@
 #define BRANCH_BLT_MASK 11 << 28
 #define BRANCH_BGT_MASK 12 << 28
 #define BRANCH_BLE_MASK 13 << 28
+#define OFF_BY_8_BYTES_EFFECT 2
+#define BRANCH_OFFSET 0xff << 24
 
 #define DP_COMMON_BITS_MASK 0xe << 28
 
