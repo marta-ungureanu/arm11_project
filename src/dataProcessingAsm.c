@@ -10,37 +10,6 @@
 #include "assembler_misc.h"
 #include <stdlib.h>
 
-#define AND_OPCODE  0
-#define EOR_OPCODE  1
-#define SUB_OPCODE  2
-#define RSB_OPCODE  3
-#define ADD_OPCODE  4
-#define TST_OPCODE  8
-#define TEQ_OPCODE  9
-#define CMP_OPCODE  10
-#define ORR_OPCODE  12
-#define MOV_OPCODE  13
-#define LSL_OPCODE  16
-#define OPCODE_SHIFT 21
-#define DESTINATION_REGISTER_SHIFT 12
-#define SOURCE_REGISTER_SHIFT 16
-#define SET_FLAG (1 << 20)
-#define IMMEDIATE_FLAG (1 << 25)
-#define INSTRUCTION_LENGTH 31
-#define MAX_8_BIT_REPRESENTABLE (1 << 8)
-#define SHIFT_TYPE_SHIFT 5
-#define SHIFT_VALUE_SHIFT 7
-#define ROTATION_SHIFT 8
-#define ROTATION_TYPE_SHIFT 4
-#define LSL_SHIFT 0
-#define LSR_SHIFT 1
-#define ASR_SHIFT 2
-#define ROR_SHIFT 3
-#define INTEGER_ROTATION 0
-#define REGISTER_ROTATION 1
-#define PC_OFFSET 8
-#define MAX_ROTATION 16
-
 /* Function that determines which type of instruction to encode depending on
  * whether the result of an operation is saved to a register or not.
  *
@@ -61,7 +30,6 @@
  *
  * Note: LSL is a special case and is handled first.
  */
-
 void dataProcessingAsm(uint32_t opcode, char instruction[]){
   uint32_t binaryInstruction = DP_COMMON_BITS_MASK;
   uint32_t rd = 0;
@@ -172,12 +140,13 @@ uint32_t encodeShiftedRegister(char *reg, char *shiftName, char *shiftV){
       shiftValue = (shiftValue << 1);
     }
   } else{
-        perror("Incorrect shift value entered");
+        perror("ERROR! Incorrect shift value entered");
   }
   return rm + (shiftType << SHIFT_TYPE_SHIFT)
             + (shiftValue << SHIFT_VALUE_SHIFT)
             + (rType << ROTATION_TYPE_SHIFT);
 }
+
 /* Function that encodes an immediateValue as an 8 bit value and a 4 bit shift.
  * Utilises a helped function if the value is greater than 255.
  *
@@ -221,27 +190,4 @@ uint32_t encodeImmediateRotation(uint32_t immediateValue){
         immediateValue <<= 1;
     }
     return ((MAX_ROTATION -shift/2) << ROTATION_SHIFT) + immediateValue;
-}
-
-/* Function that rotates an integer right by the specified rotation
- *
- * PARAM: uint32_t value, uint32_t rotation
- * value: The integer value to be rotated
- * rotation: the amount to rotate by
- *
- * Return uint32_t
- * Returns the value after the rotaint has been applied.
- */
-uint32_t rotateRight(uint32_t value, uint32_t rotation){
-    return 0;
-  /*for(int i = rotation; i > 0; i--){
-    if(value % 2 == 1){
-      value = value >> 1;
-      value += (1 << INSTRUCTION_LENGTH);
-    } else {
-      value = value >> 1;
-    }
-  }
-  return value;
-  */
 }

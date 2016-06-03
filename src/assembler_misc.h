@@ -71,6 +71,40 @@
 #define INSTRUCTION_SIZE 4
 #define MAX_CHARS_PER_LINE 512
 
+/*
+ * Data Processing constants
+*/
+#define AND_OPCODE  0
+#define EOR_OPCODE  1
+#define SUB_OPCODE  2
+#define RSB_OPCODE  3
+#define ADD_OPCODE  4
+#define TST_OPCODE  8
+#define TEQ_OPCODE  9
+#define CMP_OPCODE  10
+#define ORR_OPCODE  12
+#define MOV_OPCODE  13
+#define LSL_OPCODE  16
+#define OPCODE_SHIFT 21
+#define DESTINATION_REGISTER_SHIFT 12
+#define SOURCE_REGISTER_SHIFT 16
+#define SET_FLAG (1 << 20)
+#define IMMEDIATE_FLAG (1 << 25)
+#define INSTRUCTION_LENGTH 31
+#define MAX_8_BIT_REPRESENTABLE (1 << 8)
+#define SHIFT_TYPE_SHIFT 5
+#define SHIFT_VALUE_SHIFT 7
+#define ROTATION_SHIFT 8
+#define ROTATION_TYPE_SHIFT 4
+#define LSL_SHIFT 0
+#define LSR_SHIFT 1
+#define ASR_SHIFT 2
+#define ROR_SHIFT 3
+#define INTEGER_ROTATION 0
+#define REGISTER_ROTATION 1
+#define PC_OFFSET 8
+#define MAX_ROTATION 16
+
 struct Table {
 		char label[512];
 		int32_t address;
@@ -93,7 +127,6 @@ void dataProcessingAsm(uint32_t opcode, char instruction[]);
 uint32_t encodeShiftedRegister(char instruction[], char *arg1, char *arg2);
 uint32_t encodeImmediateOperand(char value[]);
 uint32_t encodeImmediateRotation(uint32_t immediateValue);
-uint32_t rotateRight(uint32_t immediateValue, uint32_t rotation);
 
 uint32_t printInstruction(uint32_t instruction);
 int32_t getAddress(char label[]);
