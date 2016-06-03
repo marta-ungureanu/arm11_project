@@ -25,10 +25,10 @@ void multiply(uint32_t instruction) {
 		return;
 	}
 
-	uint8_t accumulator =
-			(instruction & MULTIPLY_ACCUMULATOR_MASK) >> MUL_ACC_BIT_SHIFT;
-	uint8_t setCondition =
-			(instruction & MULTIPLY_CONDITION_MASK) >> MUL_COND_BIT_SHIFT;
+	uint8_t accumulator = (instruction & MULTIPLY_ACCUMULATOR_MASK) 
+			    >> MUL_ACC_BIT_SHIFT;
+	uint8_t setCondition = (instruction & MULTIPLY_CONDITION_MASK) 
+			     >> MUL_COND_BIT_SHIFT;
 	uint32_t rd = (instruction & MUL_SD_REG_MASK1) >> MUL_REG_SHIFT1;
 	uint32_t rn = (instruction & MUL_SD_REG_MASK2) >> MUL_REG_SHIFT2;
 	uint32_t rs = (instruction & MUL_SD_REG_MASK3) >> MUL_REG_SHIFT3;

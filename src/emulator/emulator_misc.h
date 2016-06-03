@@ -45,7 +45,6 @@ struct State ARM;
 #define MUL_REG_SHIFT2 12
 #define MUL_REG_SHIFT3 8
 
-#define OFFSET_MASK 0xFFF
 #define FLAG_Z_MASK 1 << 30
 #define FLAG_N_MASK 1 << 31
 #define NEG_NO_THAT_SHIFTS_PRINTING -999999999
@@ -75,6 +74,10 @@ struct State ARM;
 #define BIT_SET 1
 #define BIT_NOT_SET 0
 
+/*
+ * SingleDataTransfer Constants.
+*/
+#define OFFSET_MASK 0xFFF
 #define CONDITION_SHIFT 28
 #define ONE_BYTE_SHIFT 8
 #define TWO_BYTES_SHIFT 16
