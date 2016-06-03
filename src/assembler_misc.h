@@ -28,6 +28,16 @@
 #define SD_MUL_CONDITION_MASK 0xe << 28
 #define SD_COMMON_BITS_MASK 1 << 26
 #define SD_CONDITION_MASK 0
+#define FLAG_I_SHIFT 25
+#define FLAG_P_SHIFT 24
+#define FLAG_U_SHIFT 23
+#define FLAG_L_SHIFT 20
+#define RN_SHIFT 16
+#define RD_SHIFT 12
+#define MOV_LIMIT 0xFF
+#define MOV_OPCODE 13
+#define PC 15
+#define HEX_BASE 16
 
 #define FOURTH_BYTE_MASK 0xff
 #define THIRD_BYTE_MASK 0xff << 8
@@ -89,5 +99,7 @@ uint32_t printInstruction(uint32_t instruction);
 int32_t getAddress(char label[]);
 void branchAsm(char instruction[], int address);
 void singleDataTransferAsm(char instruction[], char type[], int address);
+uint32_t getOffset(char address[]);
+uint32_t convertToNumber(char expression[]);
 
 #endif
