@@ -1,6 +1,7 @@
 /* ARM Project 2016
  *
- * singleDataTransferAsm.c contains the function that assembles a single data transfer instruction
+ * singleDataTransferAsm.c contains the function that assembles a single data 
+ * transfer instruction
  *
  * Group 3
  * Members: abp14, oc1115, mu515, mz4715
@@ -24,15 +25,15 @@ uint32_t shift = 0;
  * Depending on the mnemonic bit, the instruction can load/store to/from memory. 
  * If it is a load instruction, then the flagL is set.
  *
- * If the instruction contains an '=' symbol then the instruction can be interpreted
- * as a mov or ldr. For values that can be represented on 8 bits the instruction will
- * be interpreted as a mov, otherwise as a ldr.
+ * If the instruction contains an '=' symbol then the instruction can be 
+ * interpreted as a mov or ldr. For values that can be represented on 8 bits the
+ * instruction will be interpreted as a mov, otherwise as a ldr.
  *
- * If the instruction has length 4 then it is of form [Rn], resulting that the third character
- * is the base register, with offset = 0 and it is pre-indexed.
+ * If the instruction has length 4 then it is of form [Rn], resulting that the 
+ * third character is the base register, with offset = 0 and it is pre-indexed.
  *
- * If the first and the last character are matching brackets then it is preindexed,
- * otherwise it is postindexed.
+ * If the first and the last character are matching brackets then it is 
+ * preindexed, otherwise it is postindexed.
  */
 void singleDataTransferAsm(char instruction[], char type[], int32_t pc) {
 	char *saveptr;
@@ -71,7 +72,8 @@ void singleDataTransferAsm(char instruction[], char type[], int32_t pc) {
 		} else {
 			rn = PC << RN_SHIFT;
 			finalPrint[noOfFinalPrints] = offset;
-			offset = (noOfInstructions + noOfFinalPrints) * 4 - pc - 8;
+			offset = (noOfInstructions + noOfFinalPrints) * 4 
+				- pc - 8;
 			noOfFinalPrints++;
 			flagI = 0;
 		}
@@ -90,7 +92,8 @@ void singleDataTransferAsm(char instruction[], char type[], int32_t pc) {
 		flagI = 0;
 	}
 	
-	binaryInstruction += condition + flagI + flagP + flagU + flagL + rn + rd + offset;
+	binaryInstruction += condition + flagI + flagP + flagU + flagL + rn + 
+			     rd + offset;
 	write(binaryInstruction);
 }
 
@@ -102,10 +105,12 @@ void singleDataTransferAsm(char instruction[], char type[], int32_t pc) {
  * RETURN: uint32_t
  *
  * There are three cases:
- * If address contains "lsr" we need to shift to the right with a shif value the register Rm
- * in order to obtain the offset.
- * If address contains '#' then the offset is either a hexadecimal or a decimal number.
- * If address contains only registers, the offset is the number of the third register.
+ * If address contains "lsr" we need to shift to the right with a shif value the 
+ * register Rm in order to obtain the offset.
+ * If address contains '#' then the offset is either a hexadecimal or a decimal 
+ * number.
+ * If address contains only registers, the offset is the number of the third 
+ * register.
  */
 uint32_t getOffset(char address[]) {
 	char expression[strlen(address)];
@@ -140,9 +145,10 @@ uint32_t getOffset(char address[]) {
 	return convertToNumber(expression);
 }
 
-/* Function that converts a number represented as a string into an integer taking in consideration 
- * if it is a number in hexadecimal or decimal, both positive or negative.
- 
+/* Function that converts a number represented as a string into an integer 
+ * taking in consideration if it is a number in hexadecimal or decimal, both 
+ * positive or negative.
+ *
  * PARAM: char expression[]
  * expression[]: the expression that needs to be converted to a number 
  *
