@@ -98,7 +98,7 @@ struct State ARM;
 /*
  * DataProcessing Constants.
 */
-
+#define INSTRUCTION_LENGTH 31
 #define OPCODE_SHIFT 21
 #define RN_SHIFT 16
 #define RD_SHIFT 12

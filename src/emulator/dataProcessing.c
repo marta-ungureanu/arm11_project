@@ -56,7 +56,7 @@ void dataProcessing(uint32_t instruction) {
 		} else{
 			setZBit(BIT_NOT_SET);
 		}
-		setNBit(result >> 31);
+		setNBit(result >> INSTRUCTION_LENGTH);
 	}
 }
 
@@ -213,8 +213,8 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 
 		case ASR_SHIFT:
 			while (shiftValue > 1) {
-				if ((value >> 31) == BIT_SET) {
-					value = (value >> 1) + (BIT_SET << 31);
+				if ((value >> INSTRUCTION_LENGTH) == BIT_SET) {
+					value = (value >> 1) + (BIT_SET << INSTRUCTION_LENGTH);
 				} else {
 					value = value >> 1;
 				}
@@ -224,8 +224,8 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction ) {
 			&& (decode(instruction) != SINGLE_DATA_TRANSFER)) {
 				setCBit(value % 2);
 			}
-			if ((value >> 31) == BIT_SET) {
-				value = (value >> 1) + (BIT_SET << 31);
+			if ((value >> INSTRUCTION_LENGTH) == BIT_SET) {
+				value = (value >> 1) + (BIT_SET << INSTRUCTION_LENGTH;
 			} else {
 				value = value >> 1;
 			}
@@ -261,7 +261,7 @@ uint32_t DPRotateRight(uint32_t value, uint8_t shiftValue, uint8_t opCode,
 	while (shiftValue > 0) {
 		if (value % 2 == BIT_SET) {
 			value = value >> 1;
-			value = value + (BIT_SET << 31);
+			value = value + (BIT_SET << INSTRUCTION_LENGTH);
 		} else {
 			value = value >> 1;
 		}
