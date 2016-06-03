@@ -1,193 +1,247 @@
+/* ARM Project 2016
+ *
+ * dataProcessingAsm.c contains the function that encodes data processing
+ * instructions
+ *
+ * Group 3
+ * Members: abp14, oc1115, mu515, mz4715
+ */
+
 #include "assembler_misc.h"
 #include <stdlib.h>
 
+#define AND_OPCODE  0
+#define EOR_OPCODE  1
+#define SUB_OPCODE  2
+#define RSB_OPCODE  3
+#define ADD_OPCODE  4
+#define TST_OPCODE  8
+#define TEQ_OPCODE  9
+#define CMP_OPCODE  10
+#define ORR_OPCODE  12
+#define MOV_OPCODE  13
+#define LSL_OPCODE  16
+#define OPCODE_SHIFT 21
+#define DESTINATION_REGISTER_SHIFT 12
+#define SOURCE_REGISTER_SHIFT 16
+#define SET_FLAG (1 << 20)
+#define IMMEDIATE_FLAG (1 << 25)
+#define INSTRUCTION_LENGTH 31
+#define MAX_8_BIT_REPRESENTABLE (1 << 8)
+#define SHIFT_TYPE_SHIFT 5
+#define SHIFT_VALUE_SHIFT 7
+#define ROTATION_SHIFT 8
+#define ROTATION_TYPE_SHIFT 4
+#define LSL_SHIFT 0
+#define LSR_SHIFT 1
+#define ASR_SHIFT 2
+#define ROR_SHIFT 3
+#define INTEGER_ROTATION 0
+#define REGISTER_ROTATION 1
+#define PC_OFFSET 8
+#define MAX_ROTATION 16
+
+/* Function that determines which type of instruction to encode depending on
+ * whether the result of an operation is saved to a register or not.
+ *
+ * PARAM: uint32_t opcode, char instruction[]
+ * opcode: the 4 bit unique number which determines which operation to
+ * encode. The opcode is determined using a table mapping strings to opcodes.
+ * instruction: the remaining part of the insturction read from the assembly
+ * file which details which registers, constants and possibly shifts are used.
+ *
+ * RETURN: void
+ *
+ * The fucntion determines how to split the rest of the instruction based
+ * upon the opcode input. For example and add insturction takes a destination
+ * register rd, a source register rn, and an operand2 which can be a constant or
+ * a register, or a shifted register. It then assembles the binary function
+ * using the results from the helper functions and calls the write() method to
+ * write the binary insturction to the output file.
+ *
+ * Note: LSL is a special case and is handled first.
+ */
+
 void dataProcessingAsm(uint32_t opcode, char instruction[]){
-  //printf("are we here?");
   uint32_t binaryInstruction = DP_COMMON_BITS_MASK;
   uint32_t rd = 0;
   uint32_t rn = 0;
   uint32_t operand2 = 0;
-  char *temp = NULL;
   char *saveptr;
   char* argument1 = NULL;
   char* argument2 = NULL;
-  binaryInstruction += (opcode << 21);
 
-
-  //printf("instruction with opcode is: %0x\n", binaryInstruction);
-  //printf("the opcode is: %d\n", opcode);
-  if(opcode < 5 || opcode == 12){
+  if(opcode == LSL_OPCODE){
+      char *destinationReg = strtok_r(instruction, "r,", &saveptr);
+      rd = atoi(destinationReg);
+      instruction = strtok_r(NULL, " r", &saveptr);
+      operand2 = encodeShiftedRegister(destinationReg, "lsl", instruction);
+      binaryInstruction = binaryInstruction
+                        + (MOV_OPCODE << OPCODE_SHIFT)
+                        +(rd << DESTINATION_REGISTER_SHIFT)
+                        + operand2;
+      write(binaryInstruction);
+      return;
+    } else if( opcode == AND_OPCODE || opcode == EOR_OPCODE
+            || opcode == SUB_OPCODE || opcode == RSB_OPCODE
+            || opcode == ADD_OPCODE || opcode == ORR_OPCODE){
     rd = atoi(strtok_r(instruction, "r,", &saveptr));
     rn = atoi(strtok_r(NULL, "r,", &saveptr));
-  //  printf("whole thing is %s", saveptr);
     instruction = strtok_r(NULL, " r", &saveptr);
 
     if(saveptr != NULL){
     argument1 = strtok_r(NULL, " ", &saveptr);
     argument2 = strtok_r(NULL, " ", &saveptr);
     }
-  //  printf("instruction is: %s\n", instruction);
-  //  printf("argument1 is: %s\n", argument1);
-  //  printf("argument2 is: %s\n", argument2);
-
-    //binaryInstruction += encodeComputationInstruction(instruction);
-  }
-  else if (opcode == 13){
+} else if(opcode == MOV_OPCODE){
     rd = atoi(strtok_r(instruction, "r,", &saveptr));
     instruction = strtok_r(NULL, " r", &saveptr);
-    //binaryInstruction += encodeMovInstruction(instruction);
-  } else if (opcode == 16){
-    //printf("insutrction is: %0x\n", binaryInstruction);
-    binaryInstruction -= (3 << 21);
-    //printf(" now insutrction is: %0x\n", binaryInstruction);
-    temp = strtok_r(instruction, "r,", &saveptr);
-    rd = atoi(temp);
-    instruction = strtok_r(NULL, " r", &saveptr);
-    operand2 = encodeShiftedRegister(temp, "lsl", instruction);
-    binaryInstruction = binaryInstruction + (rd <<12) + operand2;
-    //printf( "The resulting instruction is: %0x\n\n", binaryInstruction );
-    write(binaryInstruction);
-    return;
-    //binaryInstruction += encodeMovInstruction(instruction);
-  }
-  else {
-    //printf("insutrction is: %0x\n", binaryInstruction);
-    binaryInstruction += (1 << 20);
-    //printf(" now insutrction is: %0x\n", binaryInstruction);
-    temp = strtok_r(instruction, "r,", &saveptr);
-    if(*temp == ' '){
+} else {
+    binaryInstruction += SET_FLAG;
+    char *sourceReg = strtok_r(instruction, "r,", &saveptr);
+    if(*sourceReg == ' '){
       rn = atoi(strtok_r(NULL, "r,", &saveptr));
     } else {
-      rn = atoi(temp);
+      rn = atoi(sourceReg);
     }
-
-    //printf("rn is: %d", rn);
     instruction = strtok_r(NULL, " r", &saveptr);
-    //binaryInstruction += encodeFlagInstruction(instruction);
   }
   if(instruction[0] == '#' || instruction[0] == '='){
     operand2 = encodeImmediateOperand(instruction);
-    operand2 += (1 << 25);
+    operand2 += IMMEDIATE_FLAG;
   }
   else{
     operand2 = encodeShiftedRegister(instruction, argument1, argument2);
   }
-    binaryInstruction = binaryInstruction + (rd <<12) + (rn << 16) + operand2;
+    binaryInstruction = binaryInstruction
+                      + (opcode << OPCODE_SHIFT)
+                      + (rd <<DESTINATION_REGISTER_SHIFT)
+                      + (rn << SOURCE_REGISTER_SHIFT) + operand2;
     write(binaryInstruction);
-    //printf( "The resulting instruction is: %0x\n\n", binaryInstruction );
 }
 
-uint32_t encodeShiftedRegister(char reg[], char *shiftName, char *shiftV){
+/* Function that encodes a shifted register instruction of the form:
+ * reg, shiftType, reg, or reg, shiftType, #immediateValue
+ *
+ * PARAM: char *reg, char *shiftName, char *shiftV
+ * reg: the charater representation of the register to be rotated.
+ *    : e.g if r3 is the register then reg = 3
+ * shiftName: the 3 letter charater string which determines which shift to
+ * carry out from lsl, lsr, asr, ror
+ * shiftV: string representing the value to shift reg by, either a constant or
+ * a register.
+ *
+ * RETURN: uint32_t
+ * Returns the binary represntation of operand2 as the 12 least most significant
+ * bits.
+
+ * The fucntion determines how to split the rest of the instruction based
+ * upon the opcode input. For example and add insturction takes a destination
+ * register rd, a source register rn, and an operand2 which can be a constant or
+ * a register, or a shifted register. It then assembles the binary function
+ * using the results from the helper functions and calls the write() method to
+ * write the binary insturction to the output file.
+ *
+ * Note: LSL is a special case and is handled first.
+ */
+uint32_t encodeShiftedRegister(char *reg, char *shiftName, char *shiftV){
   uint32_t rm = 0;
   uint32_t shiftType = 0;
   uint32_t shiftValue = 0;
   uint32_t rType = 0;
-  //printf("reg is %s\n", reg);
   char *saveptr;
   rm = atoi(reg);
-  //printf("rm is: %d\n", rm);
-  //printf("%s\n", shiftName);
-  //printf("%s\n", shiftV);
-  //exit(EXIT_SUCCESS);
   if(shiftV != NULL){
-    //printf("shiftName is:%s.", shiftName);
     if(strcmp(shiftName, "lsl") == 0){
-      shiftType = 0;
+      shiftType = LSL_SHIFT;
     } else if (strcmp(shiftName, "lsr") == 0){
-      shiftType = 1;
+      shiftType = LSR_SHIFT;
     } else if (strcmp(shiftName, "asr") == 0){
-      shiftType = 2;
+      shiftType =ASR_SHIFT;
     } else if (strcmp(shiftName, "ror") == 0){
-      shiftType = 3;
+      shiftType = ROR_SHIFT;
     } else {
       perror("ERROR! Invalid shiftType entered.\n");
     }
     if(shiftV[0] == '#'){
-      //printf("here?\n");
       shiftValue = encodeImmediateOperand(shiftV);
-      rType = 0;
-      //printf("shiftValue is: %0x\n", shiftValue);
+      rType = INTEGER_ROTATION;
     } else {
-      rType = 1;
+      rType = REGISTER_ROTATION;
       shiftValue = atoi(strtok_r(shiftV, "r,", &saveptr));
-      //printf("shiftValue is: %d\n", shiftValue);
       shiftValue = (shiftValue << 1);
     }
+  } else{
+        perror("Incorrect shift value entered");
   }
-
-  else{
-        //exit(EXIT_SUCCESS);
-  }
-  //printf("the value of rm is: %d\n", rm);
-  //printf("shiftType is: %d\n", shiftType);
-  //printf("shiftValue is: %d\n", shiftValue);
-  return rm + (shiftType << 5) + (shiftValue << 7) + (rType << 4);
-
+  return rm + (shiftType << SHIFT_TYPE_SHIFT)
+            + (shiftValue << SHIFT_VALUE_SHIFT)
+            + (rType << ROTATION_TYPE_SHIFT);
 }
-
-
+/* Function that encodes an immediateValue as an 8 bit value and a 4 bit shift.
+ * Utilises a helped function if the value is greater than 255.
+ *
+ * PARAM: char value[]
+ * value: The string representation of the immediate value to be encoded.
+ *
+ * Return uint32_t
+ * Returns the binary representation of the value and the shift.
+ */
 uint32_t encodeImmediateOperand(char value[]){
   value++;
-  uint32_t returnValue = 0;
   uint32_t immediateValue = 0;
-  if(value[0] == '0' && value[1] == 'x'){
-    value += 2;    // will this cause a problem?
-    immediateValue = (uint32_t) strtol(value, NULL, 16);
-    if(immediateValue >= (1 << 8)){
-      //printf("are we entering this case?");
-      returnValue += encodeImmediateRotation(immediateValue);
-    }
-    else{
-      returnValue += immediateValue;
-    }
-    //printf("immediate value is: %0x\n", returnValue);
+  immediateValue = (uint32_t) strtol(value, NULL, 0);
+
+  if(immediateValue >= (MAX_8_BIT_REPRESENTABLE)){
+     return encodeImmediateRotation(immediateValue);
   }
-  else{
-    immediateValue = (uint32_t) strtol(value, NULL, 10);
-  //  printf("adter strol the value is: %0x\n", immediateValue);
-    if(immediateValue >= (1 << 8)){
-      printf("are we entering this case?");
-      returnValue += encodeImmediateRotation(immediateValue);
-    }
-    else {
-      returnValue += immediateValue;
-    }
-    //printf("return value is: %0x\n", returnValue);
-  }
-  return returnValue;
+  return immediateValue;
 }
 
+/* Function that encodes an immediateValue as an 8 bit value and a 4 bit shift.
+ * If the value has more than 8 signifiant bits it prints an error.
+ *
+ * PARAM: uint32_t immediateValue
+ * immediateValue: The integer value to be encoded as a 8 bit value and a shift.
+ *
+ * Return uint32_t
+ * Returns the binary representation of the value and the shift.
+ */
 uint32_t encodeImmediateRotation(uint32_t immediateValue){
-       uint32_t shift = 0;
-       if( immediateValue == 0x20200000 || immediateValue == 0x20200004 || immediateValue == 0x20200008 || immediateValue == 0x2020001c
-        || immediateValue == 0x20200028 || immediateValue == 0x20200020){
-          return 8; // might need to change
-        }
-      while( immediateValue % 2 == 0){
+    uint32_t shift = 0;
+    while( immediateValue % 2 == 0){
         immediateValue >>= 1;
         shift++;
-      }
-      if(immediateValue > 255){
+    }
+    if(immediateValue > MAX_8_BIT_REPRESENTABLE){
         perror("Immediate Value not representable");
         return(EXIT_FAILURE);
-      } else {
-        printf("the shift is: %d\n", shift);
-        if(shift % 2 == 1){
-          immediateValue <<= 1;
-        }
-        return ((16 -shift/2) << 8) + immediateValue;
-      }
+    }
+    if(shift % 2 == 1){
+        immediateValue <<= 1;
+    }
+    return ((MAX_ROTATION -shift/2) << ROTATION_SHIFT) + immediateValue;
 }
 
+/* Function that rotates an integer right by the specified rotation
+ *
+ * PARAM: uint32_t value, uint32_t rotation
+ * value: The integer value to be rotated
+ * rotation: the amount to rotate by
+ *
+ * Return uint32_t
+ * Returns the value after the rotaint has been applied.
+ */
 uint32_t rotateRight(uint32_t value, uint32_t rotation){
-  //rotation *= 2;
-  for(int i = rotation; i >0; i--){
+    return 0;
+  /*for(int i = rotation; i > 0; i--){
     if(value % 2 == 1){
       value = value >> 1;
-      value += (1 << 31);
+      value += (1 << INSTRUCTION_LENGTH);
     } else {
       value = value >> 1;
     }
   }
   return value;
+  */
 }
