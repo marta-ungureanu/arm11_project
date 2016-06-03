@@ -389,5 +389,5 @@ uint32_t executeArithmetic(uint8_t opCode, uint8_t rn,
  * returns true if the addition of the two numbers would result in overflow.
 */
 bool checkAdditionOverflow(uint32_t a, uint32_t b) {
-	return ( a > (INT_MAX - b) || b > (INT_MAX -a));
+	return ( a > (INT_MAX - b) || b > (INT_MAX - a));
 }
