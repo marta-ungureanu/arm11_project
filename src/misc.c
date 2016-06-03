@@ -38,7 +38,7 @@ int32_t getLocation(char instruction[]){
  * the address in memory that the label represents
  */
 int32_t getAddress(char label[]) {
-	int i = 0;
+	int32_t i = 0;
 	while(strcmp(labelsTable[i].label, label) != 0) {
 		i++;
 	}
@@ -120,7 +120,7 @@ void write(uint32_t instruction) {
  * returns true if the string is a label, false otherwise
  */
 bool isLabel(char string[], int32_t noOfLabels) {
-	for(int i = 0; i <= noOfLabels; i++) {
+	for(int32_t i = 0; i <= noOfLabels; i++) {
 		if(strcmp(labelsTable[i].label, string) == 0) {
 			return true;
 		}

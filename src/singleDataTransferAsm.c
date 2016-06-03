@@ -34,7 +34,7 @@ uint32_t shift = 0;
  * If the first and the last character are matching brackets then it is preindexed,
  * otherwise it is postindexed.
  */
-void singleDataTransferAsm(char instruction[], char type[], int pc) {
+void singleDataTransferAsm(char instruction[], char type[], int32_t pc) {
 	char *saveptr;
 	char restOfInstruction[strlen(instruction)];
 	strcpy(restOfInstruction, instruction);

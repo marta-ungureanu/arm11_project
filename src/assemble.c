@@ -7,6 +7,7 @@
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "assembler_misc.h"
 
 /* Function that implements two-pass assembler, reading assembly instructions
@@ -26,15 +27,15 @@ int main(int argc, char **argv) {
 	}
 
 	fseek(fin, 0, SEEK_END);
-	int size = ftell(fin);
+	int32_t size = ftell(fin);
 	rewind(fin);
 
 	labelsTable = malloc(size);
 	finalPrint = malloc(size);
 	char s[size][MAX_CHARS_PER_LINE];
-	int line = 0;
-	int noOfLabels = 0;
-	int addressCounter = 0;
+	int32_t line = 0;
+	int32_t noOfLabels = 0;
+	int32_t addressCounter = 0;
 
 	while(fgets(s[line], MAX_CHARS_PER_LINE, fin)) {
 		if(strchr(s[line], ':')) {
@@ -48,13 +49,13 @@ int main(int argc, char **argv) {
 	}
 
 	noOfInstructions = line;
-	for(int i = 0; i < noOfInstructions; i++) {
+	for(int32_t i = 0; i < noOfInstructions; i++) {
 		if(!isLabel(s[i], noOfLabels)) {
 			decode(s[i], INSTRUCTION_SIZE * i);
 		}
 	}
 
-	for(int i = 0; i < noOfFinalPrints; i++){
+	for(int32_t i = 0; i < noOfFinalPrints; i++){
 		write(finalPrint[i]);
 	}
 
