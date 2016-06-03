@@ -23,7 +23,7 @@
  * taking into account the offset, as well as the off-by-8 bytes effect 
  * due to the pipeline, and its sign.
  */
-void branchAsm(char instruction[], int address) {
+void branchAsm(char instruction[], int32_t address) {
 	uint32_t binaryInstruction = BRANCH_COMMON_BITS_MASK;
 	uint32_t condition = BRANCH_BAL_MASK;
 	char *saveptr;

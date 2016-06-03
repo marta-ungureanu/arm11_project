@@ -73,7 +73,7 @@
 
 struct Table {
 		char label[512];
-		int address;
+		int32_t address;
 };
 
 struct Table *labelsTable;
@@ -97,8 +97,8 @@ uint32_t rotateRight(uint32_t immediateValue, uint32_t rotation);
 
 uint32_t printInstruction(uint32_t instruction);
 int32_t getAddress(char label[]);
-void branchAsm(char instruction[], int address);
-void singleDataTransferAsm(char instruction[], char type[], int address);
+void branchAsm(char instruction[], int32_t address);
+void singleDataTransferAsm(char instruction[], char type[], int32_t address);
 uint32_t getOffset(char address[]);
 uint32_t convertToNumber(char expression[]);
 

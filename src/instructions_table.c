@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 int getLocation(char c[]){
-	for(int i = 0; i < NUMBER_OF_INSTRUCTIONS; i++){
+	for(int32_t i = 0; i < NUMBER_OF_INSTRUCTIONS; i++){
 		if(strcmp(c, instructionSet[i].instruction) == 0) {
 			return i;
 		}
@@ -14,14 +14,14 @@ int getLocation(char c[]){
 }
 
 int32_t getAddress(char label[]) {
-	int i = 0;
+	int32_t i = 0;
 	while(strcmp(labelsTable[i].label, label) != 0) {
 		i++;
 	}
 	return labelsTable[i].address;
 }
 
-void decode(char line[], int address) {
+void decode(char line[], int32_t address) {
 	char temp[strlen(line)];
 	strcpy(temp, line);
 	char *saveptr;
@@ -35,9 +35,9 @@ void decode(char line[], int address) {
 	}
 
 	char *p = strtok_r(temp, " ", &saveptr);
-	int location = getLocation(p);
+	int32_t location = getLocation(p);
 	char *restOfInstruction = line + strlen(p) + 1;
-	int code = instructionSet[location].type;
+	int32_t code = instructionSet[location].type;
 
 	switch (code){
 	case 0:
@@ -63,7 +63,7 @@ void write(uint32_t instruction) {
 }
 
 bool isLabel(char a[], int noOfLabels) {
-	for(int i = 0; i <= noOfLabels; i++) {
+	for(int32_t i = 0; i <= noOfLabels; i++) {
 		if(strcmp(labelsTable[i].label, a) == 0) {
 			return true;
 		}
