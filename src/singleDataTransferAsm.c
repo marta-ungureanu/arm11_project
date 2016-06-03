@@ -58,9 +58,9 @@ void singleDataTransferAsm(char instruction[], char type[], int pc) {
 		flagL = 1 << FLAG_L_SHIFT;
 	}
 	
-	/*if(address[0] == ' ') {
+	if(address[0] == ' ') {
 		strcpy(address, address + 1);
-	}*/
+	}
 
 	if(address[0] == '=') {
 		strcpy(address, strtok_r(NULL, "r=", &saveptr));
@@ -91,7 +91,6 @@ void singleDataTransferAsm(char instruction[], char type[], int pc) {
 	}
 	
 	binaryInstruction += condition + flagI + flagP + flagU + flagL + rn + rd + offset;
-	printf("instr is: %0x\n", binaryInstruction);
 	write(binaryInstruction);
 }
 
