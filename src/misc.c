@@ -21,7 +21,7 @@
  * the position where the instruction is stored in the table
  */
 int32_t getLocation(char instruction[]){
-	for(int i = 0; i < NUMBER_OF_INSTRUCTIONS; i++){
+	for(int i = 0; i < NUMBER_OF_INSTRUCTIONS; i++) {
 		if(strcmp(instruction, instructionSet[i].instruction) == 0) {
 			return i;
 		}
@@ -70,7 +70,7 @@ void decode(char line[], int32_t address) {
 		strcpy(temp, temp + 1);
 	}
 
-	if(strlen(temp) == 0){
+	if(strlen(temp) == 0) {
 		return;
 	}
 
@@ -79,23 +79,26 @@ void decode(char line[], int32_t address) {
 	char *restOfInstruction = line + strlen(mnemonic) + 1;
 	int code = instructionSet[location].type;
 
-	switch (code){
-	case STOP:
-		write(0);
-		break;
-	case MULTIPLY:
-		multiplyAsm(instructionSet[location].instruction, restOfInstruction);
-		break;
-    case DATA_PROCESSING:
-    	dataProcessingAsm(instructionSet[location].opcode, restOfInstruction);
-    	break;
-    case SINGLE_DATA_TRANSFER:
-    	singleDataTransferAsm(restOfInstruction, instructionSet[location].instruction, address);
-    	break;
-    case BRANCH:
-		branchAsm(line, address);
-    	break;
-  }
+	switch (code) {
+		case STOP:
+			write(0);
+			break;
+		case MULTIPLY:
+			multiplyAsm(instructionSet[location].instruction, restOfInstruction);
+			break;
+    		case DATA_PROCESSING:
+    			dataProcessingAsm(instructionSet[location].opcode, restOfInstruction);
+    			break;
+    		case SINGLE_DATA_TRANSFER:
+    			singleDataTransferAsm(restOfInstruction, instructionSet[location].instruction, address);
+    			break;
+    		case BRANCH:
+			branchAsm(line, address);
+    			break;
+		default:
+			perror("Invalid instruction");
+			exit(EXIT_FAILURE);
+  	}
 }
 
 /* Function that writes an instruction in a binary file

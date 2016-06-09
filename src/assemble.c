@@ -31,7 +31,19 @@ int main(int argc, char **argv) {
 	rewind(fin);
 
 	labelsTable = malloc(size);
+
+	if(labelsTable == NULL) {
+		perror("Malloc");
+		exit(EXIT_FAILURE);	
+	}
+
 	finalPrint = malloc(size);
+
+	if(finalPrint == NULL) {
+		perror("Malloc");
+		exit(EXIT_FAILURE);
+	}
+
 	char s[size][MAX_CHARS_PER_LINE];
 	int32_t line = 0;
 	int32_t noOfLabels = 0;
@@ -55,7 +67,7 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	for(int32_t i = 0; i < noOfFinalPrints; i++){
+	for(int32_t i = 0; i < noOfFinalPrints; i++) {
 		write(finalPrint[i]);
 	}
 

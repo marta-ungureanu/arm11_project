@@ -30,7 +30,7 @@
  *
  * Note: LSL is a special case and is handled first.
  */
-void dataProcessingAsm(uint32_t opcode, char instruction[]){
+void dataProcessingAsm(uint32_t opcode, char instruction[]) {
   uint32_t binaryInstruction = DP_COMMON_BITS_MASK;
   uint32_t rd = 0;
   uint32_t rn = 0;
@@ -39,7 +39,7 @@ void dataProcessingAsm(uint32_t opcode, char instruction[]){
   char* argument1 = NULL;
   char* argument2 = NULL;
 
-  if(opcode == LSL_OPCODE){
+  if(opcode == LSL_OPCODE) {
       char *destinationReg = strtok_r(instruction, "r,", &saveptr);
       rd = atoi(destinationReg);
       instruction = strtok_r(NULL, " r", &saveptr);
@@ -52,7 +52,7 @@ void dataProcessingAsm(uint32_t opcode, char instruction[]){
       return;
     } else if( opcode == AND_OPCODE || opcode == EOR_OPCODE
             || opcode == SUB_OPCODE || opcode == RSB_OPCODE
-            || opcode == ADD_OPCODE || opcode == ORR_OPCODE){
+            || opcode == ADD_OPCODE || opcode == ORR_OPCODE) {
     rd = atoi(strtok_r(instruction, "r,", &saveptr));
     rn = atoi(strtok_r(NULL, "r,", &saveptr));
     instruction = strtok_r(NULL, " r", &saveptr);
@@ -61,24 +61,24 @@ void dataProcessingAsm(uint32_t opcode, char instruction[]){
     argument1 = strtok_r(NULL, " ", &saveptr);
     argument2 = strtok_r(NULL, " ", &saveptr);
     }
-} else if(opcode == MOV_OPCODE){
+} else if(opcode == MOV_OPCODE) {
     rd = atoi(strtok_r(instruction, "r,", &saveptr));
     instruction = strtok_r(NULL, " r", &saveptr);
 } else {
     binaryInstruction += SET_FLAG;
     char *sourceReg = strtok_r(instruction, "r,", &saveptr);
-    if(*sourceReg == ' '){
+    if(*sourceReg == ' ') {
       rn = atoi(strtok_r(NULL, "r,", &saveptr));
     } else {
       rn = atoi(sourceReg);
     }
     instruction = strtok_r(NULL, " r", &saveptr);
   }
-  if(instruction[0] == '#' || instruction[0] == '='){
+  if(instruction[0] == '#' || instruction[0] == '=') {
     operand2 = encodeImmediateOperand(instruction);
     operand2 += IMMEDIATE_FLAG;
   }
-  else{
+  else {
     operand2 = encodeShiftedRegister(instruction, argument1, argument2);
   }
     binaryInstruction = binaryInstruction
@@ -112,26 +112,26 @@ void dataProcessingAsm(uint32_t opcode, char instruction[]){
  *
  * Note: LSL is a special case and is handled first.
  */
-uint32_t encodeShiftedRegister(char *reg, char *shiftName, char *shiftV){
+uint32_t encodeShiftedRegister(char *reg, char *shiftName, char *shiftV) {
   uint32_t rm = 0;
   uint32_t shiftType = 0;
   uint32_t shiftValue = 0;
   uint32_t rType = 0;
   char *saveptr;
   rm = atoi(reg);
-  if(shiftV != NULL){
-    if(strcmp(shiftName, "lsl") == 0){
+  if(shiftV != NULL) {
+    if(strcmp(shiftName, "lsl") == 0) {
       shiftType = LSL_SHIFT;
-    } else if (strcmp(shiftName, "lsr") == 0){
+    } else if (strcmp(shiftName, "lsr") == 0) {
       shiftType = LSR_SHIFT;
-    } else if (strcmp(shiftName, "asr") == 0){
+    } else if (strcmp(shiftName, "asr") == 0) {
       shiftType =ASR_SHIFT;
-    } else if (strcmp(shiftName, "ror") == 0){
+    } else if (strcmp(shiftName, "ror") == 0) {
       shiftType = ROR_SHIFT;
     } else {
       perror("ERROR! Invalid shiftType entered.\n");
     }
-    if(shiftV[0] == '#'){
+    if(shiftV[0] == '#') {
       shiftValue = encodeImmediateOperand(shiftV);
       rType = INTEGER_ROTATION;
     } else {
@@ -139,7 +139,7 @@ uint32_t encodeShiftedRegister(char *reg, char *shiftName, char *shiftV){
       shiftValue = atoi(strtok_r(shiftV, "r,", &saveptr));
       shiftValue = (shiftValue << 1);
     }
-  } else{
+  } else {
         perror("ERROR! Incorrect shift value entered");
   }
   return rm + (shiftType << SHIFT_TYPE_SHIFT)
@@ -156,12 +156,12 @@ uint32_t encodeShiftedRegister(char *reg, char *shiftName, char *shiftV){
  * Return uint32_t
  * Returns the binary representation of the value and the shift.
  */
-uint32_t encodeImmediateOperand(char value[]){
+uint32_t encodeImmediateOperand(char value[]) {
   value++;
   uint32_t immediateValue = 0;
   immediateValue = (uint32_t) strtol(value, NULL, 0);
 
-  if(immediateValue >= (MAX_8_BIT_REPRESENTABLE)){
+  if(immediateValue >= (MAX_8_BIT_REPRESENTABLE)) {
      return encodeImmediateRotation(immediateValue);
   }
   return immediateValue;
@@ -176,18 +176,18 @@ uint32_t encodeImmediateOperand(char value[]){
  * Return uint32_t
  * Returns the binary representation of the value and the shift.
  */
-uint32_t encodeImmediateRotation(uint32_t immediateValue){
+uint32_t encodeImmediateRotation(uint32_t immediateValue) {
     uint32_t shift = 0;
-    while( immediateValue % 2 == 0){
+    while( immediateValue % 2 == 0) {
         immediateValue >>= 1;
         shift++;
     }
-    if(immediateValue > MAX_8_BIT_REPRESENTABLE){
+    if(immediateValue > MAX_8_BIT_REPRESENTABLE) {
         perror("Immediate Value not representable");
         return(EXIT_FAILURE);
     }
-    if(shift % 2 == 1){
+    if(shift % 2 == 1) {
         immediateValue <<= 1;
     }
-    return ((MAX_ROTATION -shift/2) << ROTATION_SHIFT) + immediateValue;
+    return ((MAX_ROTATION - shift / 2) << ROTATION_SHIFT) + immediateValue;
 }

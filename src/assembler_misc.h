@@ -73,7 +73,7 @@
 
 /*
  * Data Processing constants
-*/
+ */
 #define AND_OPCODE  0
 #define EOR_OPCODE  1
 #define SUB_OPCODE  2

@@ -77,7 +77,7 @@ void singleDataTransferAsm(char instruction[], char type[], int32_t pc) {
 			noOfFinalPrints++;
 			flagI = 0;
 		}
-	} else if(strlen(address) == 4){
+	} else if(strlen(address) == 4) {
 		rn = (address[2] - '0') << RN_SHIFT;
 	} else if(address[0] == '[' && address[strlen(address) - 1] == ']') {
 		rn = (address[2] - '0') << RN_SHIFT;
@@ -103,6 +103,7 @@ void singleDataTransferAsm(char instruction[], char type[], int32_t pc) {
  * address[]: the rest of instruction
  *
  * RETURN: uint32_t
+ * Returns the offset required by the single data transfer instruction 
  *
  * There are three cases:
  * If address contains "lsr" we need to shift to the right with a shif value the 
@@ -153,6 +154,7 @@ uint32_t getOffset(char address[]) {
  * expression[]: the expression that needs to be converted to a number 
  *
  * RETURN: uint32_t
+ * Returns the number obtained by converting from a string
  *
  * There are three cases:
  * If it is a positive hexadecimal number
@@ -162,7 +164,7 @@ uint32_t getOffset(char address[]) {
 uint32_t convertToNumber(char expression[]) {
 	if(strchr(expression, 'x') && !strchr(expression, '-')) {
 		return (uint32_t)strtol(expression, NULL, HEX_BASE);
-	} else if(strchr(expression, 'x')){
+	} else if(strchr(expression, 'x')) {
 		strcpy(expression, expression + 1);
 		flagU = 0;
 		return (uint32_t)strtol(expression, NULL, HEX_BASE);

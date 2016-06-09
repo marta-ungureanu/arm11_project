@@ -5,11 +5,11 @@
 
 #define NUMBER_OF_INSTRUCTIONS 23
 
-struct entry{
+struct entry {
 	char instruction[5];
 	int type;
 	int opcode;
-}instructionSet[] =
+} instructionSet[] =
  {{"add", 2, 4},
   {"sub", 2, 2},
   {"rsb", 2, 3},
