@@ -9,17 +9,17 @@
 #include "emulator_misc.h"
 
 /* Function that executes a branch instruction
- * 
+ *
  * PARAM: uint32_t instruction
  * 32 bit binary representation of the instruction to be executed
  *
  * RETURN: void
  *
  * Given an instruction, it determines whether or not to branch to the encoded
- * address if the condition is satisfied. 
+ * address if the condition is satisfied.
  */
 void branch(uint32_t instruction) {
-	if(!checkConditionField(instruction)) {
+	if (!checkConditionField(instruction)) {
 		return;
 	}
 	int32_t signBit = 0;

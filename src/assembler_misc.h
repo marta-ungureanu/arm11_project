@@ -16,14 +16,40 @@
 #include <string.h>
 #include <stdbool.h>
 
+/*
+ * General Constants
+ */
+
 #define PRINTING_INSTRUCTION_SIZE 32
 #define PRINTING_MASK 1 << 31
+
+#define FIN_LOCATION 1
+#define FOUT_LOCATION 2
+
+#define FIRST_CHARACTER_LOCATION 0
+
+#define STOP 0
+#define MULTIPLY 1
+#define DATA_PROCESSING 2
+#define SINGLE_DATA_TRANSFER 3
+#define BRANCH 4
+
+#define INSTRUCTION_SIZE 4
+#define MAX_CHARS_PER_LINE 512
+
+/*
+ * Multiply constants
+ */
 
 #define MUL_COMMON_BITS_MASK 9 << 4
 #define MUL_CONDITION_MASK 0xe << 28
 #define MUL_RD_SHIFT 16
 #define MUL_RS_SHIFT 8
 #define MUL_RN_SHIFT 12
+
+/*
+ * Single Data Transfer constants
+ */
 
 #define SD_MUL_CONDITION_MASK 0xe << 28
 #define SD_COMMON_BITS_MASK 1 << 26
@@ -44,6 +70,9 @@
 #define SECOND_BYTE_MASK 0xff << 16
 #define FIRST_BYTE_MASK 0xff << 24
 
+/*
+ * Branch constants
+ */
 #define BRANCH_COMMON_BITS_MASK 10 << 24
 #define BRANCH_BAL_MASK 14 << 28
 #define BRANCH_BEQ_MASK 0
@@ -55,25 +84,13 @@
 #define OFF_BY_8_BYTES_EFFECT 2
 #define BRANCH_OFFSET 0xff << 24
 
-#define DP_COMMON_BITS_MASK 0xe << 28
 
-#define FIN_LOCATION 1
-#define FOUT_LOCATION 2
 
-#define FIRST_CHARACTER_LOCATION 0
-
-#define STOP 0
-#define MULTIPLY 1
-#define DATA_PROCESSING 2
-#define SINGLE_DATA_TRANSFER 3
-#define BRANCH 4
-
-#define INSTRUCTION_SIZE 4
-#define MAX_CHARS_PER_LINE 512
 
 /*
  * Data Processing constants
  */
+#define DP_COMMON_BITS_MASK 0xe << 28
 #define AND_OPCODE  0
 #define EOR_OPCODE  1
 #define SUB_OPCODE  2
@@ -105,6 +122,10 @@
 #define PC_OFFSET 8
 #define MAX_ROTATION 16
 
+/*
+ * Global Variables
+ */
+
 struct Table {
 		char label[512];
 		int32_t address;
@@ -117,6 +138,10 @@ int32_t noOfFinalPrints;
 int32_t noOfInstructions;
 uint32_t flagU;
 FILE *fout;
+
+/*
+ * Function Declarations
+ */
 
 void decode(char line[], int32_t address);
 void write(uint32_t instruction);

@@ -81,8 +81,8 @@ void singleDataTransfer(uint32_t instruction) {
  * if the address is out of bounds it will print a message accordingly
  */
 void load_store(uint32_t rd, uint32_t address, uint32_t flagL) {
-	if (flagL) {
-		if (address + THREE_BYTES < SIZE_OF_MEMORY) {
+	if(flagL) {
+		if(address + THREE_BYTES < SIZE_OF_MEMORY) {
 			ARM.registers[rd] = fetchInstruction(address);
 		} else {
 			uint32_t status = printMessage(address);

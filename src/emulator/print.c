@@ -54,7 +54,7 @@ void printStatus(void) {
 		}
 	}
 	printf("Non-zero memory:\n");
-	for(int32_t i = 0; i < SIZE_OF_MEMORY; i+=4) {
+	for(int32_t i = 0; i < SIZE_OF_MEMORY; i += INSTRUCTION_SIZE) {
 		if(fetchInstruction(i) != STOP) {
 			printf("0x%08x: 0x%08x\n", i, printInstruction(i));
 		}
