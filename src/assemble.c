@@ -17,12 +17,12 @@
 int main(int argc, char **argv) {
 	FILE *fin;
 	if((fin = fopen(argv[FIN_LOCATION], "r")) == NULL) {
-		perror("Error opening %s.txt!", argv[FIN_LOCATION]);
+		perror("Error opening file!");
 		exit(EXIT_FAILURE);
 	}
 
 	if((fout = fopen(argv[FOUT_LOCATION], "w")) == NULL) {
-		perror("Error opening %s.txt!", argv[FOUT_LOCATION]);
+		perror("Error opening file!");
 		exit(EXIT_FAILURE);
 	}
 
