@@ -5,6 +5,10 @@
 
 #define NUMBER_OF_INSTRUCTIONS 23
 
+/*
+ * Table which maps assembly instructions to their type of instruction, and
+ * their opcode if necessary.
+ */
 struct entry {
 	char instruction[5];
 	int type;

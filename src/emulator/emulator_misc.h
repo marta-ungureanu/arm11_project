@@ -129,6 +129,7 @@ struct State ARM;
 #define OPTIONAL_REGISTER_SHIFT 7
 #define ROTATE_SHIFT 8
 #define SHIFT_TYPE_SHIFT 5
+#define FINAL_SHIFT 1
 
 
 
@@ -137,13 +138,18 @@ void execute(int code, uint32_t instruction);
 int32_t decode(uint32_t instruction);
 bool checkConditionField(uint32_t instruction);
 uint32_t fetchInstruction(int32_t address);
+
 void multiply(uint32_t instruction);
 void singleDataTransfer(uint32_t instruction);
 void branch(uint32_t instruction);
 void dataProcessing(uint32_t instruction);
+
 void printStatus(void);
 uint32_t printInstruction(int32_t address);
+uint32_t printMessage(uint32_t address);
+
 void load_store(uint32_t rd, uint32_t address, uint32_t flagL);
+
 bool isImmediateOperandSet(uint32_t instruction);
 bool sBitSet(uint32_t instruction);
 bool isLogical(uint8_t opCode);
@@ -159,7 +165,7 @@ uint32_t DPShift(uint32_t operand2, uint8_t opCode, uint32_t instruction);
 void setZBit(uint8_t value);
 void setCBit(uint8_t value);
 void setNBit(uint8_t value);
-uint32_t printMessage(uint32_t address);
+
 
 
 #endif /* EMULATOR_FUNCTIONS_H_ */

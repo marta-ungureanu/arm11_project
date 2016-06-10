@@ -23,8 +23,8 @@
  *
  * The fucntion determines how to split the rest of the instruction based
  * upon the opcode input. For example and add insturction takes a destination
- * register rd, a source register rn, and an operand2 which can be a constant or
- * a register, or a shifted register. It then assembles the binary function
+ * register rd, a source register rn, and an operand2 which can be a constant
+ * or a register, or a shifted register. It then assembles the binary function
  * using the results from the helper functions and calls the write() method to
  * write the binary insturction to the output file.
  *
@@ -100,13 +100,13 @@ void dataProcessingAsm(uint32_t opcode, char instruction[]) {
  * a register.
  *
  * RETURN: uint32_t
- * Returns the binary represntation of operand2 as the 12 least most significant
- * bits.
+ * Returns the binary represntation of operand2 as the 12 least most
+ * significant bits.
 
  * The fucntion determines how to split the rest of the instruction based
  * upon the opcode input. For example and add insturction takes a destination
- * register rd, a source register rn, and an operand2 which can be a constant or
- * a register, or a shifted register. It then assembles the binary function
+ * register rd, a source register rn, and an operand2 which can be a constant
+ * or a register, or a shifted register. It then assembles the binary function
  * using the results from the helper functions and calls the write() method to
  * write the binary insturction to the output file.
  *
@@ -171,7 +171,7 @@ uint32_t encodeImmediateOperand(char value[]) {
  * If the value has more than 8 signifiant bits it prints an error.
  *
  * PARAM: uint32_t immediateValue
- * immediateValue: The integer value to be encoded as a 8 bit value and a shift.
+ * immediateValue: The integer value to be encoded as a 8 bit value and a shift
  *
  * Return uint32_t
  * Returns the binary representation of the value and the shift.

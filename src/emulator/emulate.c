@@ -15,7 +15,7 @@
  */
 int main(int argc, char **argv) {
 	FILE *fin;
-	
+
 	if((fin = fopen(argv[argc - 1], "r")) == NULL) {
 		perror("Error opening file.txt!");
 		exit(EXIT_FAILURE);
@@ -29,6 +29,6 @@ int main(int argc, char **argv) {
 	fclose(fin);
 
 	pipeline();
-	
+
 	return EXIT_SUCCESS;
 }
