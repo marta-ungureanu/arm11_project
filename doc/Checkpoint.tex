@@ -1,30 +1,123 @@
-\documentclass[11pt]{article}
+\documentclass{article}
+\usepackage[english]{babel}
+\usepackage[a4paper, total={6in, 8in}]{geometry}
 
-\usepackage{fullpage}
+%%%%%%%%%% Start TeXmacs macros
+\newcommand{\tmtextbf}[1]{{\bfseries{#1}}}
+%%%%%%%%%% End TeXmacs macros
 
 \begin{document}
 
-\title{ARM Checkpoint... }
-\author{TODO}
-
+\title{ARM Checkpoint}
+\author{Group 3: Andrew Pearcy, Marta Ungureanu, Maurizio Zen, Oana Ciocioman}
 \maketitle
 
+
+
 \section{Group Organisation}
+\begin{paragraph}
+\tab
+\end{paragraph}
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-culpa qui officia deserunt mollit anim id est laborum.
+\tmtextbf{How we split the work:}
 
+Initially, we worked together to get the first common parts of the
+functionality working. The Check Condition function and the main decode
+function were written together so that we could then each implement one of the
+four main functions. Once we had this initially setup working we designated
+the four main tasks as follows. Andrew was to code the Data Processing
+instructions, Marta the multiply instruction, Oana the Single Data Transfer
+Instruction and Maurizio the Branch instruction.\newline 
+
+We then communicated heavily over social media in order to ensure that our
+independent parts would synchronise upon merging. Once we believed the main
+functionality of all of our independent parts was working, we merged the code
+together in order to run the more complicated tests, for example those which
+used a branch instruction required the CPSR flags to be set, which is dealt
+with under the Data Processing commands.\newline
+
+
+\tmtextbf{How well is the group working:} 
+
+Once we had our first team meeting and set out our goals on what each
+individual should be trying to accomplish, we were very successful in
+implementing our individual parts in a timely fashion. Upon merging all of the
+work together we discovered a few bugs and worked together as a team to
+identify exactly where the origin of these bugs were. It was necessary to go
+through the bugs together because each person had a strong understanding of
+their code. This allowed us to quickly run through each of the operations that
+was being executed and work together to identify what the root of the cause
+was and whether or not we had missed an edge case.\newline
+
+
+For future improvement we will need to be more careful to consider test cases. 
+In out first implementaiton required a lot of debugging as we had not taken into
+account all the possible edge cases. Therefore we will need to be more meticulous
+to consider all possibilities for the next parts of the project. \newline
+
+
+
+\newpage 
 \section{Implementation Strategies}
+\begin{paragraph}
+\tab
+\end{paragraph}
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-culpa qui officia deserunt mollit anim id est laborum.
+\tmtextbf{Emulator Structure:}
+
+Our emulator is structured as follows:
+
+Initially, the contents of the file is read into our virtually memory which is
+stored as a global struct along with our registers. Then the pipeline function
+is called which simulates the pipeline as described in the spec. This function
+uses the Program Counter (stored in the struct) to fetch the instruction from
+memory. The little endianness of the memory is handled by the fetch instruction which
+takes the independent bytes and returns a 32 bit instruction. This is then
+stored in the pipeline as the fetched instruction. Since the pipeline's main
+functionality is the while loop which causes it to continue execution, it
+re-enters the loop and decodes the current instruction, fetching the next. The
+decoded instruction is decoded using a separate decode instruction which
+determines which of the four types of instruction to call. Hence the decoded
+instruction is stored as a number between -1 and 4 with -1 representing an instruction not 
+contained in our set, 0 being the Stop instruction, 1 being
+multiply, 2 data processing, 3 single data transfer and 4 branch.\newline
+
+On the next iteration of the loop, the pipeline continues its fetch decode
+cycle, and now that is had a decoded instruction it executes this instruction
+by calling execute on the decoded instruction which then determines which of
+the four tasks should be run. The four tasks are then passed the instruction
+to decode the necessary bits remaining in the instruction to determine exactly
+what they need to do. For example with data processing it needs to determine
+the opcode in order to carry out the right instruction. The multiply
+instruction determines which registers to operates on, the single data
+transfer has to determine which registers and what type of operation, and the
+branch instruction has to determine the offset.\newline
+
+After the instruction is executed, the pipeline continues to run until it
+reaches a 0 instruction at which point it exits and prints the contents of the
+registers and the memory with our print status function.\newline
+
+In terms of what parts we will be able to reuse for our
+assembler, we believe it is unlikely that much of the code will be able to
+re-used, except in a reverse engineering aspect. Since our emulator deals with
+decoding the binary files, we should be able to use this as a basis/target of
+what our assembler will be aiming to produce. We will be able to use our
+emulator to test our assembled files, but beyond that the emulator will be
+somewhat limited in its usefulness for implementing the assembler, except for
+perhaps the function which reads into memory, a similar function will be
+required for assembler. Additionally, we should be able to reuse our structure 
+which stores the current state of our machine, i.e. the current register values
+and memory values. By having this in a separate file we will be able to include
+it in the assembler.\newline
+
+
+
+\tmtextbf{What implementation tasks we may find difficult:}
+
+We think one of the most difficult part of assembler will be recognising
+labels within the assembly code. We will have to make a decision about how we
+want to implement this, whether by a one pass or two pass system, but
+recognising these and assigning them appropriately for branch statements will
+definitely be a challenge.
 
 \end{document}
