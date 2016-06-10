@@ -7,8 +7,8 @@ CFLAGS  = -Wall -g -D_POSIX_SOURCE -D_BSD_SOURCE -std=c99 -Werror -pedantic
 
 all: emulate assemble
 
-assemble: assemble.o misc.o branchAsm.o multiplyAsm.o singleDataTransferAsm.o dataProcessingAsm.o instructions_table.h
-	$(CC) -o assemble assemble.o misc.o branchAsm.o multiplyAsm.o singleDataTransferAsm.o dataProcessingAsm.o
+assemble: assemble.o instructions_table.o branchAsm.o multiplyAsm.o printBinary.o singleDataTransferAsm.o dataProcessingAsm.o instructions_table.h
+	$(CC) -o assemble assemble.o instructions_table.o branchAsm.o multiplyAsm.o printBinary.o singleDataTransferAsm.o dataProcessingAsm.o
 
 emulate: emulate.o pipeline.o print.o multiply.o singleDataTransfer.o dataProcessing.o branch.o checkCondition.o
 		$(CC) -o emulate emulate.o pipeline.o print.o multiply.o singleDataTransfer.o dataProcessing.o branch.o checkCondition.o
@@ -43,14 +43,17 @@ assemble.o : assemble.c
 decode.o : decode.c
 		$(CC) $(CFLAGS) -c decode.c
 
-misc.o : misc.c
-		$(CC) $(CFLAGS) -c misc.c
+instructions_table.o : instructions_table.c
+		$(CC) $(CFLAGS) -c instructions_table.c
 
 branchAsm.o: branchAsm.c
 		$(CC) $(CFLAGS) -c branchAsm.c
 
 multiplyAsm.o: multiplyAsm.c
 		$(CC) $(CFLAGS) -c multiplyAsm.c
+
+printBinary.o : printBinary.c
+		$(CC) $(CFLAGS) -c printBinary.c
 
 singleDataTransferAsm.o : singleDataTransferAsm.c
 		$(CC) $(CFLAGS) -c singleDataTransferAsm.c
