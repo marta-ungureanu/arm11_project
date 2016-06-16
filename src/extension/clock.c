@@ -14,6 +14,6 @@
 int main(void) {
   wiringPiSetup();
   initializePins();
-  clock();
+  binary_clock();
   return EXIT_SUCCESS;
 }

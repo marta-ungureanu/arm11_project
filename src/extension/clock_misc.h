@@ -48,27 +48,29 @@
 #define ONE_SECOND_DELAY 1000
 #define SHORT_WAITING_TIME 1
 #define LONG_WAITING_TIME 300
+#define SECS_IN_AN_HOUR 3600
 
-int used_pins[] = {2, 3, 7, 6, 10, 11, 15, 16, 1, 12, 13, 14};
+static int used_pins[] = {2, 3, 7, 6, 10, 11, 15, 16, 1, 12, 13, 14};
 
 typedef struct time {
   int hours, mins, secs;
 } time_rep;
 
-time_rep actual_time = {UNDEFINED, UNDEFINED, UNDEFINED};
-time_rep alarm_time = {UNDEFINED, UNDEFINED, UNDEFINED};
+static time_rep actual_time = {UNDEFINED, UNDEFINED, UNDEFINED};
+static time_rep alarm_time = {UNDEFINED, UNDEFINED, UNDEFINED};
 
-time_t rawtime;
-struct tm *timeinfo;
-int mode = CLOCK_MODE;
-bool alarm_is_set = false;
-bool sound_on = false;
+static time_t rawtime;
+static time_t rawtime_after_alarm;
+static struct tm *timeinfo;
+static int mode = CLOCK_MODE;
+static bool alarm_is_set = false;
+static bool sound_on = false;
 
 void turnOnLeds(int number, int times, int dataPin, int latchPin, int clockPin);
 void initializePins(void);
 void digitalWrite_t(int pin, int status, int clockPin);
 time_rep set_time(int mins, int hours);
-void clock(void);
+void binary_clock(void);
 void handle_mode(void);
 void print_time(int secs, int mins, int hours);
 void handle_alarm(void);

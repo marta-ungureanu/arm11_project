@@ -1,5 +1,5 @@
-CC      = gcc
-CFLAGS  = -Wall -g -D_POSIX_SOURCE -D_BSD_SOURCE -std=c99 -Werror -pedantic
+CC      = gcc -lwiringPi
+CFLAGS  = -g -D_POSIX_SOURCE -D_BSD_SOURCE -std=c99 -pedantic
 
 .SUFFIXES: .c .o
 

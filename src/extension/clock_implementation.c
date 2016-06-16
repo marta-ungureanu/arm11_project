@@ -18,7 +18,7 @@
  * first initialization, we delay the loop by 1 second in order to keep the
  * proper timing.
  */
-void clock(void) {
+void binary_clock(void) {
   while(true) {
     handle_mode();
     if(actual_time.hours == UNDEFINED) {
@@ -106,6 +106,9 @@ void handle_mode(void) {
  * the hours.
  */
 time_rep set_time(int mins, int hours) {
+  if(mode == SET_ALARM_MODE) {
+    time(&rawtime);
+  }
   while(digitalRead(CHANGE_MODE) == LOW) {
     if(digitalRead(CHANGE_MINS) == HIGH) {
       while(digitalRead(CHANGE_MINS)) {
@@ -131,7 +134,18 @@ time_rep set_time(int mins, int hours) {
     delay(SHORT_WAITING_TIME);
   }
 
-  time_rep new_time = {hours - 1, mins - 1, 0};
+  if(mode == SET_ALARM_MODE) {
+    time(&rawtime_after_alarm);
+    int difference = difftime(rawtime_after_alarm, rawtime);
+    int actual_hours = difference / SECS_IN_AN_HOUR;
+    actual_time.hours += actual_hours;
+    difference -= SECS_IN_AN_HOUR * actual_hours;
+    int actual_mins = difference / MAX_MINS_SECS;
+    actual_time.mins +=  actual_mins;
+    actual_time.secs = difference - MAX_MINS_SECS * actual_mins;
+  }
+
+  time_rep new_time  = {hours - 1, mins - 1, 0};
   return new_time;
 }
 
