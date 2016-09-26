@@ -15,8 +15,6 @@
  * RETURN: void
  */
 void initializePins(void) {
-  /*pinMode(8, OUTPUT);
-  digitalWrite(8, HIGH);*/
   for(int i = 0; i < BORDERLINE_OUTPUT_INPUT; i++){
     pinMode(used_pins[i], OUTPUT);
   }
